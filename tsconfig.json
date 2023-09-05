@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "lib": [ "dom", "es6", "es5", "es2015.promise" ],
+    "target": "es5",
+    "allowJs": false,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+  },
+  "exclude": [
+    "node_modules",
+    "library",
+    "local",
+    "temp",
+    "build",
+    "settings",
+    "LevelDatas.ts"
+  ],
+}

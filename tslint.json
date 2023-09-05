@@ -1,0 +1,13 @@
+{
+    "extends": ["tslint-config-alloy"],
+    "linterOptions": {
+        "exclude": ["**/node_modules/**"]
+    },
+    "rules": {
+        "no-magic-numbers": false,
+        "no-this-assignment": [true, {"allowed-names": ["^that$"], "allow-destructuring": true}],
+        "triple-equals": [true, "allow-null-check", "allow-undefined-check"],
+        "indent": [true, "spaces", 4]
+    }
+}
+  

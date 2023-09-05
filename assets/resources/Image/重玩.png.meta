@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "58f90f4f-2d0c-47c1-8341-cd18cb3c6b45",
+  "importer": "texture",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 360,
+  "height": 360,
+  "platformSettings": {},
+  "subMetas": {
+    "重玩": {
+      "ver": "1.0.6",
+      "uuid": "890ad074-5fce-4e6f-8fd7-222e27dfbe59",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "58f90f4f-2d0c-47c1-8341-cd18cb3c6b45",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": -0.5,
+      "offsetY": 0.5,
+      "trimX": 4,
+      "trimY": 4,
+      "width": 351,
+      "height": 351,
+      "rawWidth": 360,
+      "rawHeight": 360,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}
