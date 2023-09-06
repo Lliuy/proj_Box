@@ -1,7 +1,5 @@
-import Archive from './Archive';
-import Configs from './Configs';
-import GameData from './GameData';
-import xfire from './XFire/xfire';
+import Configs from "./Configs";
+import GameData from "./GameData";
 
 const { ccclass, property } = cc._decorator;
 

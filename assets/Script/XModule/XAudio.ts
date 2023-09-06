@@ -153,10 +153,15 @@ export default class XAudio {
 
     /**
      * 批量加载resources下的音乐，加载后的音频名为文件名
+     * @param _bundle 目录名，为空优先从Resource、resources加载
      * @param resFolder 目录名，默认为Audio
      */
-    public static addResAudios(resFolder = 'Audio') {
-        cc.loader.loadResDir(resFolder, cc.AudioClip, (err, assets, urls) => {
+    public static addResAudios(_bundle: cc.AssetManager.Bundle = null, resFolder = 'Audio') {
+        let bundle = _bundle || cc.assetManager.getBundle('Resource') || cc.resources;
+        if (!bundle) {
+            return;
+        }
+        bundle.loadDir(resFolder, cc.AudioClip, (err, assets) => {
             if (err) {
                 console.log(JSON.stringify(err));
                 return;
@@ -231,6 +236,12 @@ export default class XAudio {
         }
     }
 
+    /** 如果当前播放与指定音乐相同则不切换 */
+    public static switchMusic(name: string, loop = true) {
+        if (this.musicPlaying === name) return;
+        this.playMusic(name, loop);
+    }
+
     public static pauseMusic() {
         if (!XAudio.musicPlaying || XAudio.musicPaused) {
             return;
@@ -265,10 +276,10 @@ export default class XAudio {
     }
 
     /**
-     * 播放音效，如果是循环播放还会返回一个播放句柄
+     * 播放音效
      * @param name 音频名
      */
-    public static playSound(name: string, loop = false): AudioHandle {
+    public static playSound(name: string) {
         if (!XAudio.soundOn) {
             return;
         }
@@ -281,19 +292,8 @@ export default class XAudio {
         if (!audio) {
             return;
         }
-        let id = cc.audioEngine.playEffect(audio, loop);
+        cc.audioEngine.playEffect(audio, false);
         XAudio.justPlayedSounds[name] = ts;
-        return new AudioHandle(id);
-    }
-
-    /**
-     * 停止播放指定音效
-     * @param handle 播放句柄
-     */
-    public static stopSound(handle: AudioHandle) {
-        if (handle != null) {
-            cc.audioEngine.stopEffect(handle.id);
-        }
     }
 
     /**
@@ -348,15 +348,4 @@ export default class XAudio {
             cc.sys.localStorage.setItem(AudioDoc, JSON.stringify(doc));
         }
     }
-}
-
-/** 音乐音效句柄 */
-export class AudioHandle {
-    /** 内部操作句柄id */
-    public id = -1;
-
-    public constructor(id: number) {
-        this.id = id;
-    }
-
 }

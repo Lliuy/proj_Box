@@ -9,6 +9,7 @@
 import Archive from './Archive';
 import Configs from './Configs';
 import { ResourceData } from './GameData';
+import AudioManager, { AudioName } from './Module/AudioManager';
 import NodeUtils from './NodeUtils';
 import xfire from './XFire/xfire';
 import XAudio from './XModule/XAudio';
@@ -35,7 +36,7 @@ export default class SceneLoading extends cc.Component {
 		/** 在小游戏平台、原生平台默认是禁用动态合图的，这里给予直接关闭，确保开发时drawcall准确 */
 		if (CC_DEV) cc.dynamicAtlasManager.enabled = false;
 		// 初始化sdk配置
-		xfire.initWithConfigs(this.xhAppCfg.json);
+		// xfire.initWithConfigs(this.xhAppCfg.json);
 
 		// 存档处理
 		{
@@ -94,7 +95,8 @@ export default class SceneLoading extends cc.Component {
 		this.taskPool.addTask(new TaskSimple(() => { XAudio.addResAudios(); }));
 		// 任务：预加载场景
 		this.taskPool.addTask(new TaskPreloadScene('App'));
-
+		await this.taskPool.start();
+		AudioManager.overrideButton();
 		// 任务:  加载图集资源
 		// this.taskPool.addTask(new TaskLoadAtalas());
 
@@ -102,7 +104,7 @@ export default class SceneLoading extends cc.Component {
 		// this.taskPool.addTask(new TaskLoadRemoteAtalas([
 		//     {name: 'icons', url: 'https://imgcdn.orbn.top/g/038/assets/resources1/Atlas/icon.plist'}
 		// ]));
-
+		XAudio.playMusic(AudioName.背景);
 		// 进入主场景
 		cc.director.loadScene('App');
 	}
@@ -124,16 +126,7 @@ class TaskLoadSubpackages extends Task {
 			});
 			cc.assetManager.loadBundle('Resource', (err: Error, bundle: cc.AssetManager.Bundle) => {
 				ResourceData.resource = bundle;
-				if (ResourceData.resource && ResourceData.remote) {
-					this.endTask(true);
-				}
-				if (err) {
-					console.error(err);
-				}
-			});
-			cc.assetManager.loadBundle('Remote', (err: Error, bundle: cc.AssetManager.Bundle) => {
-				ResourceData.remote = bundle;
-				if (ResourceData.resource && ResourceData.remote) {
+				if (ResourceData.resource) {
 					this.endTask(true);
 				}
 				if (err) {

@@ -9,7 +9,9 @@ import Configs from '../Configs';
 import { Cell, GameRussianCity, InstEliminateCol, InstEliminateRow, InstGenCell, InstGenOptionBricks, InstReset, InstructionType, OptionBrick } from '../Game/俄罗斯小镇/GameRussianCity';
 import NodeDragger from '../Game/俄罗斯小镇/NodeDragger';
 import GameData from '../GameData';
+import { AudioName } from '../Module/AudioManager';
 import xfire from '../XFire/xfire';
+import XAudio from '../XModule/XAudio';
 
 const { ccclass, property } = cc._decorator;
 
@@ -72,7 +74,7 @@ export default class LayerGameRussianCity extends cc.Component {
         this.dealInstructions();
     }
 
-    public update(dt) {}
+    public update(dt) { }
 
     public changeCellColor() {
         for (const cell of this.cells) {
@@ -94,6 +96,7 @@ export default class LayerGameRussianCity extends cc.Component {
     public placeBrick(optionBrick: OptionBrick, topLeftCornerPos: cc.Vec2): boolean {
         let x = 0;
         let y = 0;
+        XAudio.playSound(AudioName.放下)
         for (const cell of this.nodeBoardParent.children) {
             let rect = cell.getBoundingBoxToWorld();
             rect = cc.rect(rect.x, rect.y, rect.width + this.cellSpace, rect.height + this.cellSpace);
@@ -238,9 +241,11 @@ export default class LayerGameRussianCity extends cc.Component {
                     await this.dealInstReset(inst as InstReset);
                     break;
                 case InstructionType.EliminateCol:
+                    XAudio.playSound(AudioName.消除);
                     await this.dealInstEliminateCol(inst as InstEliminateCol);
                     break;
                 case InstructionType.EliminateRow:
+                    XAudio.playSound(AudioName.消除);
                     await this.dealInstEliminateRow(inst as InstEliminateRow);
                     break;
                 case InstructionType.GenCell:
@@ -259,6 +264,7 @@ export default class LayerGameRussianCity extends cc.Component {
         this.labelScore.string = this.game.getScore().toString();
 
         if (this.game.isGameOver()) {
+            XAudio.playSound(AudioName.游戏失败)
             this.showPageEnd();
         }
     }

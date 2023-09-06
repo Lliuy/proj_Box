@@ -40,12 +40,13 @@
 
 *******************************************************************************/
 
+import xfire from '../XFire/xfire';
 import AnalyzerInterface from './Analyzer/AnalyzerInterface';
 
 export default class Analyzer {
     private static analyzers: AnalyzerInterface[] = [];
     /** 模块进入时间 */
-    private static moduleEnterTime: {[key: string]: number} = {};
+    private static moduleEnterTime: { [key: string]: number } = {};
     /** 标记是否已初始化 */
     private static initialized = false;
 
