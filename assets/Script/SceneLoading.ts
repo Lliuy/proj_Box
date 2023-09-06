@@ -22,9 +22,7 @@ export default class SceneLoading extends cc.Component {
 	/** 配置文件 */
 	@property(cc.JsonAsset)
 	private xhAppCfg: cc.JsonAsset = null;
-	/** 游戏配置文件 */
-	@property(cc.JsonAsset)
-	private gameCfg: cc.JsonAsset = null;
+
 	/** 进度条 */
 	@property(cc.ProgressBar)
 	private progressBar: cc.ProgressBar = null;
@@ -36,7 +34,7 @@ export default class SceneLoading extends cc.Component {
 		/** 在小游戏平台、原生平台默认是禁用动态合图的，这里给予直接关闭，确保开发时drawcall准确 */
 		if (CC_DEV) cc.dynamicAtlasManager.enabled = false;
 		// 初始化sdk配置
-		// xfire.initWithConfigs(this.xhAppCfg.json);
+		xfire.initWithConfigs(this.xhAppCfg.json);
 
 		// 存档处理
 		{

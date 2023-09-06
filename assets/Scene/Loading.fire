@@ -595,8 +595,9 @@
       "__id__": 2
     },
     "_enabled": true,
-    "xhAppCfg": null,
-    "gameCfg": null,
+    "xhAppCfg": {
+      "__uuid__": "ac093612-dbbd-4ead-b55a-2935dd9debb3"
+    },
     "progressBar": {
       "__id__": 11
     },

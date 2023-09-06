@@ -1,0 +1,101 @@
+{
+    "name": "机智的一笔",
+    "appid": "126",
+    "version": "1.0.10",
+    "sdks": [
+    {
+            "name": "桌面浏览器",
+            "appid": "126",
+            "ads": [{ "name": "通用banner", "type": "banner", "id": "", "style": { "left": 0, "bottom": 0, "width": 720, "height": 210 } }],
+            "payPoints": [
+                { "name": "计费测试", "goods": "计费测试", "price": 1, "desc": "计费测试" },
+                { "name": "每日畅玩礼包", "goods": "每日畅玩礼包", "price": 1, "desc": "每日畅玩礼包" },
+                { "name": "7日会员", "goods": "7日会员", "price": 12, "desc": "7日会员" },
+                { "name": "会员升级", "goods": "会员升级", "price": 18, "desc": "会员升级" },
+                { "name": "30日会员", "goods": "30日会员", "price": 30, "desc": "30日会员" },
+                { "name": "新手礼包", "goods": "新手礼包", "price": 6, "desc": "新手礼包" },
+                { "name": "发条玩偶套装", "goods": "发条玩偶套装", "price": 8, "desc": "发条玩偶套装" },
+                { "name": "影套装", "goods": "影套装", "price": 30, "desc": "影套装" },
+                { "name": "首充礼包", "goods": "首充礼包", "price": 1, "desc": "首充礼包" },
+                { "name": "钻石礼包￥1", "goods": "钻石礼包￥1", "price": 1, "desc": "10钻石" },
+                { "name": "钻石礼包￥6", "goods": "钻石礼包￥6", "price": 6, "desc": "60钻石" },
+                { "name": "钻石礼包￥30", "goods": "钻石礼包￥30", "price": 30, "desc": "300钻石" },
+                { "name": "钻石礼包￥68", "goods": "钻石礼包￥68", "price": 68, "desc": "680钻石" },
+                { "name": "钻石礼包￥128", "goods": "钻石礼包￥128", "price": 128, "desc": "1280钻石" },
+                { "name": "钻石礼包￥198", "goods": "钻石礼包￥198", "price": 198, "desc": "1980钻石" },
+                { "name": "钻石礼包￥328", "goods": "钻石礼包￥328", "price": 328, "desc": "3280钻石" },
+                { "name": "钻石礼包￥648", "goods": "钻石礼包￥648", "price": 648, "desc": "6280钻石" }
+            ]
+        },
+        {
+            "name": "移动浏览器",
+            "appid": "126",
+            "ads": [{ "name": "通用banner", "type": "banner", "id": "", "style": { "left": 0, "bottom": 0, "width": 720, "height": 210 } }],
+            "payPoints": [
+                { "name": "计费测试", "goods": "计费测试", "price": 1, "desc": "计费测试" },
+                { "name": "每日畅玩礼包", "goods": "每日畅玩礼包", "price": 1, "desc": "每日畅玩礼包" },
+                { "name": "7日会员", "goods": "7日会员", "price": 12, "desc": "7日会员" },
+                { "name": "会员升级", "goods": "会员升级", "price": 18, "desc": "会员升级" },
+                { "name": "30日会员", "goods": "30日会员", "price": 30, "desc": "30日会员" },
+                { "name": "新手礼包", "goods": "新手礼包", "price": 6, "desc": "新手礼包" },
+                { "name": "发条玩偶套装", "goods": "发条玩偶套装", "price": 8, "desc": "发条玩偶套装" },
+                { "name": "影套装", "goods": "影套装", "price": 30, "desc": "影套装" },
+                { "name": "首充礼包", "goods": "首充礼包", "price": 1, "desc": "首充礼包" },
+                { "name": "钻石礼包￥1", "goods": "钻石礼包￥1", "price": 1, "desc": "10钻石" },
+                { "name": "钻石礼包￥6", "goods": "钻石礼包￥6", "price": 6, "desc": "60钻石" },
+                { "name": "钻石礼包￥30", "goods": "钻石礼包￥30", "price": 30, "desc": "300钻石" },
+                { "name": "钻石礼包￥68", "goods": "钻石礼包￥68", "price": 68, "desc": "680钻石" },
+                { "name": "钻石礼包￥128", "goods": "钻石礼包￥128", "price": 128, "desc": "1280钻石" },
+                { "name": "钻石礼包￥198", "goods": "钻石礼包￥198", "price": 198, "desc": "1980钻石" },
+                { "name": "钻石礼包￥328", "goods": "钻石礼包￥328", "price": 328, "desc": "3280钻石" },
+                { "name": "钻石礼包￥648", "goods": "钻石礼包￥648", "price": 648, "desc": "6280钻石" }
+            ]
+        },
+        {
+            "name": "微信小程序",
+            "appid": "wx7219b3e36224e30a",
+            "allowGuest": false,
+            "params": {
+                "sendMessageImg": "https://imgcdn.orbn.top/g/common/pay/wechatgzhpay126.jpg"
+            },
+            "ads": [
+                { "name": "通用video", "type": "video", "id": "adunit-9be8ab77b2b1ec05" },
+                { "name": "结算双倍video", "type": "video", "id": "adunit-9946257956d8d536" },
+                { "name": "通用interstitial", "type": "interstitial", "id": "adunit-f16a30ffdd8ea4f3" },
+                { "name": "通用banner", "type": "banner", "autoReload": 3, "duration": 20, "id": "adunit-5a87fc6c36fc2dab", "style": { "left": 0, "bottom": 0, "width": 720, "height": 210 } },
+                { "name": "通用格子", "type": "grid", "id": "adunit-8cb5f7eb452b78ef", "style": { "right": 50, "bottom": 0, "width": 120, "height": 600 } }
+            ],
+            "payPoints": [
+                { "name": "计费测试", "goods": "计费测试", "price": 1, "desc": "计费测试" },
+                { "name": "每日畅玩礼包", "goods": "每日畅玩礼包", "price": 1, "desc": "每日畅玩礼包" },
+                { "name": "7日会员", "goods": "7日会员", "price": 12, "desc": "7日会员" },
+                { "name": "会员升级", "goods": "会员升级", "price": 18, "desc": "会员升级" },
+                { "name": "30日会员", "goods": "30日会员", "price": 30, "desc": "30日会员" },
+                { "name": "新手礼包", "goods": "新手礼包", "price": 6, "desc": "新手礼包" },
+                { "name": "发条玩偶套装", "goods": "发条玩偶套装", "price": 8, "desc": "发条玩偶套装" },
+                { "name": "影套装", "goods": "影套装", "price": 30, "desc": "影套装" },
+                { "name": "首充礼包", "goods": "首充礼包", "price": 1, "desc": "首充礼包" },
+                { "name": "钻石礼包￥1", "goods": "钻石礼包￥1", "price": 1, "desc": "10钻石" },
+                { "name": "钻石礼包￥6", "goods": "钻石礼包￥6", "price": 6, "desc": "60钻石" },
+                { "name": "钻石礼包￥30", "goods": "钻石礼包￥30", "price": 30, "desc": "300钻石" },
+                { "name": "钻石礼包￥68", "goods": "钻石礼包￥68", "price": 68, "desc": "680钻石" },
+                { "name": "钻石礼包￥128", "goods": "钻石礼包￥128", "price": 128, "desc": "1280钻石" },
+                { "name": "钻石礼包￥198", "goods": "钻石礼包￥198", "price": 198, "desc": "1980钻石" },
+                { "name": "钻石礼包￥328", "goods": "钻石礼包￥328", "price": 328, "desc": "3280钻石" },
+                { "name": "钻石礼包￥648", "goods": "钻石礼包￥648", "price": 648, "desc": "6280钻石" }
+            ]
+        },
+        {
+            "name": "字节跳动小程序",
+            "appid": "tt5ad52c68c5eb7ffe02",
+            "allowGuest": false,
+            "params": {
+                "dontPreload": "false"
+            },
+            "ads": [
+                { "name": "通用video", "type": "video", "id": "2i31d5igkpj918j6f3" },
+                { "name": "通用interstitial", "type": "interstitial", "id": "d30ko9pkg27opfl88j" }
+            ]
+        }
+    ]
+}
