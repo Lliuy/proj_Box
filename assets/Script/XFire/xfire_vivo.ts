@@ -13,6 +13,7 @@
  *      4.打开快应用调试器，选择本地安装，或者构建界面直接点运行，然后手机调试器扫码运行
  */
 
+import xfire from './xfire';
 import XFireApp, { AdCfg, BannerAd, FeedsAd, InterstitialAd, LoginError, LoginResult, SdkCfg, SystemInfo, VideoAd } from './xfire_base';
 import XFireConfigs from './xfire_config';
 
@@ -53,7 +54,7 @@ if (!(cc.sys.platform === cc.sys.WECHAT_GAME) && cc.sys.platform === cc.sys.VIVO
     }
 }
 
-export default class XFireAppVivo extends XFireApp{
+export default class XFireAppVivo extends XFireApp {
 
     public constructor() {
         super();
@@ -155,7 +156,7 @@ export default class XFireAppVivo extends XFireApp{
 
     public setClipboardData(content: string): Promise<boolean> {
         if (xfire.plat !== xfire.PLAT_VIVO) return;
-        return new Promise<boolean> ((resolve) => {
+        return new Promise<boolean>((resolve) => {
             vivoapi.setClipboardData({
                 text: content,
                 success: () => {
@@ -170,7 +171,7 @@ export default class XFireAppVivo extends XFireApp{
 
     public getClipboardData(): Promise<string> {
         if (xfire.plat !== xfire.PLAT_VIVO) return;
-        return new Promise<string> ((resolve) => {
+        return new Promise<string>((resolve) => {
             vivoapi.getClipboardData({
                 success: (res) => {
                     resolve(res.text);
@@ -183,22 +184,22 @@ export default class XFireAppVivo extends XFireApp{
     }
 
     public login(params: {
-            timeout?: number;                       // 超时时间，单位ms
-            success?: (res: LoginResult) => void;
-            fail?: (err: LoginError) => void;
-            complete?: () => void;
-        }= {}): void {
+        timeout?: number;                       // 超时时间，单位ms
+        success?: (res: LoginResult) => void;
+        fail?: (err: LoginError) => void;
+        complete?: () => void;
+    } = {}): void {
         if (xfire.plat !== xfire.PLAT_VIVO) return;
 
         vivoapi.login().then((res) => {
             if (res.data.token) {
                 if (params.success) {
-                    params.success({plat: this.plat, code: res.data.token });
+                    params.success({ plat: this.plat, code: res.data.token });
                 }
             }
             else {
                 if (params.fail) {
-                    params.fail({msg: '失败:没有token'});
+                    params.fail({ msg: '失败:没有token' });
                 }
             }
             if (params.complete) {
@@ -206,7 +207,7 @@ export default class XFireAppVivo extends XFireApp{
             }
         }, (err) => {
             if (params.fail) {
-                params.fail({msg: '失败:' + JSON.stringify(err)});
+                params.fail({ msg: '失败:' + JSON.stringify(err) });
             }
             if (params.complete) {
                 params.complete();
@@ -261,7 +262,7 @@ export default class XFireAppVivo extends XFireApp{
 
 }
 
-class BannerAdVivo extends BannerAd{
+class BannerAdVivo extends BannerAd {
     public constructor(sdkConfig: SdkCfg, config: AdCfg) {
         super(sdkConfig, config);
     }
@@ -292,7 +293,7 @@ class BannerAdVivo extends BannerAd{
             return;
         }
 
-        let banner = vivoapi.createBannerAd({posId: this.config.id, style: {}});
+        let banner = vivoapi.createBannerAd({ posId: this.config.id, style: {} });
         this.platObj = banner;
         if (banner == null) {
             console.log('banner广告创建失败：' + this.config.name);
@@ -332,7 +333,7 @@ class BannerAdVivo extends BannerAd{
 
 }
 
-class VideoAdVivo extends VideoAd{
+class VideoAdVivo extends VideoAd {
     private playCb: (end: boolean) => void = null;
     private loading = false;
     private lastLoadTime = 0;
@@ -347,7 +348,7 @@ class VideoAdVivo extends VideoAd{
 
     public load(): void {
         if (xfire.plat !== xfire.PLAT_VIVO) return;
-        let param = {posId: this.config.id};
+        let param = { posId: this.config.id };
         let video = vivoapi.createRewardedVideoAd(param);
         if (video != null) {
             this.platObj = video;
@@ -459,7 +460,7 @@ class InterstitialAdVivo extends InterstitialAd {
     protected nativeShow(): void {
         if (xfire.plat !== xfire.PLAT_VIVO) return;
 
-        let param = {posId: this.config.id};
+        let param = { posId: this.config.id };
         let ad = vivoapi.createInterstitialAd(param);
         if (ad != null) {
             this.platObj = ad;
@@ -487,7 +488,7 @@ class FeedsAdVivo extends FeedsAd {
 
     public load(): void {
         if (xfire.plat !== xfire.PLAT_VIVO) return;
-        let param = {adUnitId: this.config.id};
+        let param = { adUnitId: this.config.id };
         this.platObj = vivoapi.createCustomAd(param);
         if (this.platObj) {
             this.platObj.onLoad(() => {

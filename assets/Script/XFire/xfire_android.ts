@@ -47,9 +47,10 @@
  *        其中的【手机ip】替换为手机真实ip，如：
  *        devtools://devtools/bundled/inspector.html?v8only=true&ws=192.168.1.219:6086/00010002-0003-4004-8005-000600070008
  */
+import xfire from './xfire';
 import XFireApp, { AdCfg, AppBoxAd, AppConfig, BannerAd, FeedsAd, FullscreenAd, InterstitialAd, LoginError, LoginResult, OrderInfo, SdkCfg, SystemInfo, VideoAd } from './xfire_base';
 
-export default class XFireAppAndroid extends XFireApp{
+export default class XFireAppAndroid extends XFireApp {
 
     public constructor() {
         super();
@@ -232,14 +233,14 @@ export default class XFireAppAndroid extends XFireApp{
         success?: (res: LoginResult) => void;
         fail?: (err: LoginError) => void;
         complete?: () => void;
-    }= {}): void {
+    } = {}): void {
         if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let errMsg = 'login未实现';
         console.error(errMsg);
         if (param.fail) {
-            param.fail({msg: errMsg});
+            param.fail({ msg: errMsg });
         }
         if (param.complete) {
             param.complete();
@@ -323,7 +324,7 @@ export default class XFireAppAndroid extends XFireApp{
         if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
-        return new Promise<boolean> ((resolve) => {
+        return new Promise<boolean>((resolve) => {
             jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity',
                 'setClipboardData',
                 '(Ljava/lang/String;)V',
@@ -337,7 +338,7 @@ export default class XFireAppAndroid extends XFireApp{
         if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
-        return new Promise<string> ((resolve) => {
+        return new Promise<string>((resolve) => {
             let content: string = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'getClipboardData', '()Ljava/lang/String;');
             resolve(content);
         });
@@ -348,16 +349,16 @@ export default class XFireAppAndroid extends XFireApp{
      * @param method 方法名
      * @param params 参数集合
      */
-    public remoteCall(method: string, params: {[key: string]: any}): Promise<any> {
+    public remoteCall(method: string, params: { [key: string]: any }): Promise<any> {
         if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
-        return new Promise<any> ((resolve) => {
+        return new Promise<any>((resolve) => {
             jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity',
                 'remoteCall',
                 '(Ljava/lang/String;I)V',
-                JSON.stringify({method, data: params}),
-                XFireApp.getInstance().createJsbCallBack((ret: {result: string; data: any}) => {
+                JSON.stringify({ method, data: params }),
+                XFireApp.getInstance().createJsbCallBack((ret: { result: string; data: any }) => {
                     if (ret != null && ret.result === 'ok') {
                         console.log('android remoteCall succ: ' + method);
                         resolve(ret.data);
@@ -417,12 +418,12 @@ export default class XFireAppAndroid extends XFireApp{
         if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
-        return new Promise<string> ((resolve) => {
+        return new Promise<string>((resolve) => {
             jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity',
                 'getUserInput',
                 '(Ljava/lang/String;I)V',
                 title,
-                XFireApp.getInstance().createJsbCallBack((ret: {succ: boolean; text: string}) => {
+                XFireApp.getInstance().createJsbCallBack((ret: { succ: boolean; text: string }) => {
                     if (!ret.succ) {
                         resolve(null);
                     }
@@ -580,24 +581,24 @@ export default class XFireAppAndroid extends XFireApp{
                     return;
                 }
                 if (params.status === 'success' && notifier.success) {
-                    notifier.success({payPoint: params.payPoint, orderid: params.orderid, count: cfg.count, goodsName: cfg.goods});
+                    notifier.success({ payPoint: params.payPoint, orderid: params.orderid, count: cfg.count, goodsName: cfg.goods });
                 }
                 else if (params.status === 'fail' && notifier.fail) {
-                    notifier.fail({payPoint: params.payPoint, orderid: params.orderid, count: cfg.count, goodsName: cfg.goods}, params.failMsg);
+                    notifier.fail({ payPoint: params.payPoint, orderid: params.orderid, count: cfg.count, goodsName: cfg.goods }, params.failMsg);
                 }
                 else if (params.status === 'cancel' && notifier.cancel) {
-                    notifier.cancel({payPoint: params.payPoint, orderid: params.orderid, count: cfg.count, goodsName: cfg.goods});
+                    notifier.cancel({ payPoint: params.payPoint, orderid: params.orderid, count: cfg.count, goodsName: cfg.goods });
                 }
             }));
     }
 }
 
-class BannerAdAndroid extends BannerAd{
+class BannerAdAndroid extends BannerAd {
     public supportAutoRefresh() {
         return true;
     }
 
-    public onEvent(param: {event: string; succ: boolean; msg: string}) {
+    public onEvent(param: { event: string; succ: boolean; msg: string }) {
         if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
@@ -620,11 +621,11 @@ class BannerAdAndroid extends BannerAd{
             return;
         }
         let scaleToPlat = xfire.getSystemInfoSync().screenWidth / cc.view.getVisibleSize().width;
-        let style = {left: 0, top: 0, width: 0, height: 0};
+        let style = { left: 0, top: 0, width: 0, height: 0 };
         // 定义style转换接口
         if (this.config.style) {
-            let genBannerAdStyle = (style: {left?: number; top?: number; width?: number; height?: number}): any => {
-                return {left: style.left * scaleToPlat, top: style.top * scaleToPlat, width: style.width * scaleToPlat, height: style.height * scaleToPlat};
+            let genBannerAdStyle = (style: { left?: number; top?: number; width?: number; height?: number }): any => {
+                return { left: style.left * scaleToPlat, top: style.top * scaleToPlat, width: style.width * scaleToPlat, height: style.height * scaleToPlat };
             };
             style = genBannerAdStyle(this.config.style);
             console.log('xhsg_android create banner' + this.config.name + ' ' + JSON.stringify(style));
@@ -706,11 +707,11 @@ class BannerAdAndroid extends BannerAd{
     }
 }
 
-class VideoAdAndroid extends VideoAd{
+class VideoAdAndroid extends VideoAd {
     private end = false;
     private playCb: (end: boolean) => void = null;
 
-    public onEvent(param: {event: string; succ: boolean; msg: string}) {
+    public onEvent(param: { event: string; succ: boolean; msg: string }) {
         if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
@@ -779,7 +780,7 @@ class VideoAdAndroid extends VideoAd{
 }
 
 class InterstitialAdAndroid extends InterstitialAd {
-    public onEvent(param: {event: string; succ: boolean; msg: string}) {
+    public onEvent(param: { event: string; succ: boolean; msg: string }) {
         if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
@@ -824,7 +825,7 @@ class InterstitialAdAndroid extends InterstitialAd {
 }
 
 class FullscreenAdAndroid extends FullscreenAd {
-    public onEvent(param: {event: string; succ: boolean; msg: string}) {
+    public onEvent(param: { event: string; succ: boolean; msg: string }) {
         if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
@@ -869,7 +870,7 @@ class FullscreenAdAndroid extends FullscreenAd {
 }
 
 class AppBoxAdAndroid extends AppBoxAd {
-    public onEvent(param: {event: string; succ: boolean; msg: string}) {
+    public onEvent(param: { event: string; succ: boolean; msg: string }) {
         if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
@@ -912,7 +913,7 @@ class AppBoxAdAndroid extends AppBoxAd {
 }
 
 class FeedsAdAndroid extends FeedsAd {
-    public onEvent(param: {event: string; succ: boolean; msg: string}) {
+    public onEvent(param: { event: string; succ: boolean; msg: string }) {
         if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }

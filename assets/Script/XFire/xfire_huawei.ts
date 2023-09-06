@@ -31,14 +31,16 @@
 import SimpleUI from '../XModule/SimpleUI';
 import { SNode } from '../XModule/SimpleUI/SUIData';
 import SUIResLoader from '../XModule/SimpleUI/SUIResLoader';
+import xfire from './xfire';
 import XFireApp, { Ad, AdCfg, AppConfig, BannerAd, FeedsAd, InterstitialAd, LoginError, LoginResult, SdkCfg, SystemInfo, VideoAd, XUserInfoWithSignature } from './xfire_base';
 import XFireConfigs from './xfire_config';
+import xfireol from './xfireol';
 
 const huaweiapi: any = (window as any).qg;
 const qgapi: any = (window as any).qg;
 const Key_Privacy_Agreed = 'hw_key_privacy_agreed';
 
-export default class XFireAppHuawei extends XFireApp{
+export default class XFireAppHuawei extends XFireApp {
     public static resLoader: SUIResLoader = null;
 
     public static bindButtonClickListener(nodeOrBtn: cc.Node | cc.Button, listener: (event: cc.Event) => void) {
@@ -64,7 +66,7 @@ export default class XFireAppHuawei extends XFireApp{
         }
     }
     /** 加速度监听函数 */
-    public accCb: (res: {x: number; y: number; z: number}) => void = null;
+    public accCb: (res: { x: number; y: number; z: number }) => void = null;
 
     public privacyAgreed = false;
     /** 隐私同意后弹出feeds广告，为string为feeds广告名，为true则默认feeds名为通用feeds */
@@ -137,7 +139,7 @@ export default class XFireAppHuawei extends XFireApp{
         if (huaweiapi.startAccelerometer) {
             huaweiapi.startAccelerometer({});
             if (this.accCb == null) {
-                this.accCb = (res: {x: number; y: number; z: number}) => {
+                this.accCb = (res: { x: number; y: number; z: number }) => {
                     this.dispatchAccelerometerChange(res.x, res.y, res.z, false);
                 };
                 huaweiapi.onAccelerometerChange(this.accCb);
@@ -317,7 +319,7 @@ export default class XFireAppHuawei extends XFireApp{
 
         // 登录华为账号
         let doLogin = (): Promise<void> => {
-            return new Promise<void> ((resolve) => {
+            return new Promise<void>((resolve) => {
                 huaweiapi.showLoading({
                     title: '登录中',
                     mask: true
@@ -379,7 +381,7 @@ export default class XFireAppHuawei extends XFireApp{
             console.log('异常，不存在原生广告层');
             return null;
         }
-        let iData: SNode = {'name': '结点_隐私协议排版', 'size': [720, 1280], 'components': [{'name': 'Widget', 'properties': {'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null}}, {'name': 'BlockInput'}], 'children': [{'name': '黑底', 'color': '000000', 'opacity': 192, 'size': [720, 1280], 'components': [{'name': 'Sprite', 'properties': {'image': 'bg1x1', 'type': 0, 'sizeMode': 0}}, {'name': 'Widget', 'properties': {'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null}}]}, {'name': 'root', 'size': [720, 1280], 'components': [{'name': 'Widget', 'properties': {'top': 0, 'bottom': 0, 'alignMode': null}}], 'children': [{'name': '对话框', 'children': [{'name': 'bg', 'size': [600, 420], 'components': [{'name': 'Sprite', 'properties': {'image': 'bg1x1', 'type': 0, 'sizeMode': 0}}]}, {'name': '标题', 'color': '000000', 'pos': [0, 175.723], 'size': [500, 70], 'components': [{'name': 'Label', 'properties': {'string': '用户协议和隐私政策', 'hAlign': 1, 'vAlign': 1, 'fontSize': 45, 'lineHeight': 75, 'overflow': 2, 'cacheMode': 0}}, {'name': 'Widget', 'properties': {'top': -210.723, 'alignMode': null}}]}, {'name': '描述', 'color': '000000', 'pos': [0, 71.738], 'size': [533, 133], 'components': [{'name': 'Label', 'properties': {'string': '感谢您使用本游戏。您使用本游戏前应当阅读并同意我们的用户协议和隐私政策。', 'hAlign': 0, 'vAlign': 1, 'fontSize': 33, 'lineHeight': 35, 'overflow': 2, 'cacheMode': 0}}]}, {'name': '按钮同意', 'pos': [0, -114.081], 'size': [200, 67], 'components': [{'name': 'Button', 'properties': {'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'default_btn_normal'}}], 'children': [{'name': 'Background', 'color': 'ff8500', 'size': [200, 67], 'components': [{'name': 'Sprite', 'properties': {'image': '圆角矩形', 'type': 1, 'sizeMode': 0, 'slice': [11, 11, 11, 11]}}], 'children': [{'name': 'Label', 'size': [80, 63], 'components': [{'name': 'Label', 'properties': {'string': '同意', 'hAlign': 1, 'vAlign': 1, 'fontSize': 40, 'lineHeight': 50, 'overflow': 0, 'cacheMode': 0}}]}]}]}, {'name': '按钮不同意', 'pos': [0, -199.632], 'size': [80, 25], 'scale': [0.8, 0.8], 'components': [{'name': 'Button', 'properties': {'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'x3'}}], 'children': [{'name': 'Background', 'size': [90, 90], 'children': [{'name': 'New Label', 'color': '000000', 'size': [75, 50.4], 'components': [{'name': 'Label', 'properties': {'string': '不同意', 'hAlign': 1, 'vAlign': 1, 'fontSize': 25, 'lineHeight': 40, 'overflow': 0, 'cacheMode': 0}}]}]}]}, {'name': '点击查看', 'children': [{'name': '点击查看：', 'color': '000000', 'pos': [-102.204, -45], 'size': [160, 50.4], 'components': [{'name': 'Label', 'properties': {'string': '点击查看：', 'hAlign': 1, 'vAlign': 1, 'fontSize': 22, 'lineHeight': 40, 'overflow': 2, 'cacheMode': 0}}]}, {'name': '用户协议', 'color': '001fff', 'pos': [19.532, -45], 'size': [100, 30], 'components': [{'name': 'Label', 'properties': {'string': '用户协议', 'hAlign': 0, 'vAlign': 0, 'fontSize': 20, 'lineHeight': 22, 'overflow': 2, 'cacheMode': 0}}, {'name': 'Button', 'properties': {'transition': 0, 'normalSprite': 'default_btn_normal'}}]}, {'name': '隐私政策', 'color': '001fff', 'pos': [138.532, -45], 'size': [100, 30], 'components': [{'name': 'Label', 'properties': {'string': '隐私政策', 'hAlign': 0, 'vAlign': 0, 'fontSize': 20, 'lineHeight': 22, 'overflow': 2, 'cacheMode': 0}}, {'name': 'Button', 'properties': {'transition': 0, 'normalSprite': 'default_btn_normal'}}]}]}]}, {'name': '文本框', 'size': [720, 1280], 'components': [{'name': 'Widget', 'properties': {'top': 0, 'bottom': 0, 'alignMode': null}}], 'children': [{'name': '文本', 'pos': [0, 540], 'anchor': [0.5, 1], 'size': [720, 28], 'components': [{'name': 'Label', 'properties': {'string': '加载中...', 'hAlign': 0, 'vAlign': 0, 'fontSize': 24, 'lineHeight': 28, 'overflow': 3, 'cacheMode': 2}}, {'name': 'Widget', 'properties': {'top': 100, 'alignMode': null}}, {'name': 'Dragger', 'properties': {'dragThreshold': 15, 'realtimeSet': false, 'up': true, 'down': true, 'left': false, 'right': false}}]}, {'name': '按钮返回', 'pos': [0, -526.5], 'size': [200, 67], 'components': [{'name': 'Button', 'properties': {'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'default_btn_normal'}}, {'name': 'Widget', 'properties': {'bottom': 80, 'alignMode': null}}], 'children': [{'name': 'Background', 'color': 'ff8500', 'size': [200, 67], 'components': [{'name': 'Sprite', 'properties': {'image': '圆角矩形', 'type': 1, 'sizeMode': 0, 'slice': [11, 11, 11, 11]}}]}, {'name': 'Label', 'size': [80, 63], 'components': [{'name': 'Label', 'properties': {'string': '返回', 'hAlign': 1, 'vAlign': 1, 'fontSize': 40, 'lineHeight': 50, 'overflow': 0, 'cacheMode': 0}}]}]}]}]}]};
+        let iData: SNode = { 'name': '结点_隐私协议排版', 'size': [720, 1280], 'components': [{ 'name': 'Widget', 'properties': { 'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null } }, { 'name': 'BlockInput' }], 'children': [{ 'name': '黑底', 'color': '000000', 'opacity': 192, 'size': [720, 1280], 'components': [{ 'name': 'Sprite', 'properties': { 'image': 'bg1x1', 'type': 0, 'sizeMode': 0 } }, { 'name': 'Widget', 'properties': { 'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null } }] }, { 'name': 'root', 'size': [720, 1280], 'components': [{ 'name': 'Widget', 'properties': { 'top': 0, 'bottom': 0, 'alignMode': null } }], 'children': [{ 'name': '对话框', 'children': [{ 'name': 'bg', 'size': [600, 420], 'components': [{ 'name': 'Sprite', 'properties': { 'image': 'bg1x1', 'type': 0, 'sizeMode': 0 } }] }, { 'name': '标题', 'color': '000000', 'pos': [0, 175.723], 'size': [500, 70], 'components': [{ 'name': 'Label', 'properties': { 'string': '用户协议和隐私政策', 'hAlign': 1, 'vAlign': 1, 'fontSize': 45, 'lineHeight': 75, 'overflow': 2, 'cacheMode': 0 } }, { 'name': 'Widget', 'properties': { 'top': -210.723, 'alignMode': null } }] }, { 'name': '描述', 'color': '000000', 'pos': [0, 71.738], 'size': [533, 133], 'components': [{ 'name': 'Label', 'properties': { 'string': '感谢您使用本游戏。您使用本游戏前应当阅读并同意我们的用户协议和隐私政策。', 'hAlign': 0, 'vAlign': 1, 'fontSize': 33, 'lineHeight': 35, 'overflow': 2, 'cacheMode': 0 } }] }, { 'name': '按钮同意', 'pos': [0, -114.081], 'size': [200, 67], 'components': [{ 'name': 'Button', 'properties': { 'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'default_btn_normal' } }], 'children': [{ 'name': 'Background', 'color': 'ff8500', 'size': [200, 67], 'components': [{ 'name': 'Sprite', 'properties': { 'image': '圆角矩形', 'type': 1, 'sizeMode': 0, 'slice': [11, 11, 11, 11] } }], 'children': [{ 'name': 'Label', 'size': [80, 63], 'components': [{ 'name': 'Label', 'properties': { 'string': '同意', 'hAlign': 1, 'vAlign': 1, 'fontSize': 40, 'lineHeight': 50, 'overflow': 0, 'cacheMode': 0 } }] }] }] }, { 'name': '按钮不同意', 'pos': [0, -199.632], 'size': [80, 25], 'scale': [0.8, 0.8], 'components': [{ 'name': 'Button', 'properties': { 'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'x3' } }], 'children': [{ 'name': 'Background', 'size': [90, 90], 'children': [{ 'name': 'New Label', 'color': '000000', 'size': [75, 50.4], 'components': [{ 'name': 'Label', 'properties': { 'string': '不同意', 'hAlign': 1, 'vAlign': 1, 'fontSize': 25, 'lineHeight': 40, 'overflow': 0, 'cacheMode': 0 } }] }] }] }, { 'name': '点击查看', 'children': [{ 'name': '点击查看：', 'color': '000000', 'pos': [-102.204, -45], 'size': [160, 50.4], 'components': [{ 'name': 'Label', 'properties': { 'string': '点击查看：', 'hAlign': 1, 'vAlign': 1, 'fontSize': 22, 'lineHeight': 40, 'overflow': 2, 'cacheMode': 0 } }] }, { 'name': '用户协议', 'color': '001fff', 'pos': [19.532, -45], 'size': [100, 30], 'components': [{ 'name': 'Label', 'properties': { 'string': '用户协议', 'hAlign': 0, 'vAlign': 0, 'fontSize': 20, 'lineHeight': 22, 'overflow': 2, 'cacheMode': 0 } }, { 'name': 'Button', 'properties': { 'transition': 0, 'normalSprite': 'default_btn_normal' } }] }, { 'name': '隐私政策', 'color': '001fff', 'pos': [138.532, -45], 'size': [100, 30], 'components': [{ 'name': 'Label', 'properties': { 'string': '隐私政策', 'hAlign': 0, 'vAlign': 0, 'fontSize': 20, 'lineHeight': 22, 'overflow': 2, 'cacheMode': 0 } }, { 'name': 'Button', 'properties': { 'transition': 0, 'normalSprite': 'default_btn_normal' } }] }] }] }, { 'name': '文本框', 'size': [720, 1280], 'components': [{ 'name': 'Widget', 'properties': { 'top': 0, 'bottom': 0, 'alignMode': null } }], 'children': [{ 'name': '文本', 'pos': [0, 540], 'anchor': [0.5, 1], 'size': [720, 28], 'components': [{ 'name': 'Label', 'properties': { 'string': '加载中...', 'hAlign': 0, 'vAlign': 0, 'fontSize': 24, 'lineHeight': 28, 'overflow': 3, 'cacheMode': 2 } }, { 'name': 'Widget', 'properties': { 'top': 100, 'alignMode': null } }, { 'name': 'Dragger', 'properties': { 'dragThreshold': 15, 'realtimeSet': false, 'up': true, 'down': true, 'left': false, 'right': false } }] }, { 'name': '按钮返回', 'pos': [0, -526.5], 'size': [200, 67], 'components': [{ 'name': 'Button', 'properties': { 'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'default_btn_normal' } }, { 'name': 'Widget', 'properties': { 'bottom': 80, 'alignMode': null } }], 'children': [{ 'name': 'Background', 'color': 'ff8500', 'size': [200, 67], 'components': [{ 'name': 'Sprite', 'properties': { 'image': '圆角矩形', 'type': 1, 'sizeMode': 0, 'slice': [11, 11, 11, 11] } }] }, { 'name': 'Label', 'size': [80, 63], 'components': [{ 'name': 'Label', 'properties': { 'string': '返回', 'hAlign': 1, 'vAlign': 1, 'fontSize': 40, 'lineHeight': 50, 'overflow': 0, 'cacheMode': 0 } }] }] }] }] }] };
         let node = SimpleUI.instantiate(iData, XFireAppHuawei.resLoader);
         // 取出一些关键点
         let root = node.getChildByName('root');
@@ -457,7 +459,7 @@ export default class XFireAppHuawei extends XFireApp{
     }
 }
 
-class BannerAdHuaWei extends BannerAd{
+class BannerAdHuaWei extends BannerAd {
     private scaleToPlat = 1;
     private closedTime = 0;
     private userClosed = false;
@@ -554,7 +556,7 @@ class BannerAdHuaWei extends BannerAd{
     }
 }
 
-class VideoAdHuaWei extends VideoAd{
+class VideoAdHuaWei extends VideoAd {
     private playCb: (end: boolean) => void = null;
 
     public load(): void {
@@ -690,9 +692,9 @@ class FeedsAdHuaWei extends FeedsAd {
     public load(): void {
         if (xfire.plat !== xfire.PLAT_HUAWEI) return;
         this.enable = true;
-            /**
-             * uniqueId形如99c45532-09e4-417c-b554-c96acd14994d，status依次：WAITING DOWNLOADING DOWNLOADFAILED PAUSE INSTALL INSTALLING INSTALLED
-             */
+        /**
+         * uniqueId形如99c45532-09e4-417c-b554-c96acd14994d，status依次：WAITING DOWNLOADING DOWNLOADFAILED PAUSE INSTALL INSTALLING INSTALLED
+         */
     }
 
     public moveTo(left: number, top: number, width: number, height: number): void {
@@ -735,7 +737,7 @@ class FeedsAdHuaWei extends FeedsAd {
             if (this.nodeAd != null && this.platObj) {
                 this.onclose = onclose;
                 this.nodeAd.active = true;
-                this.platObj.reportAdShow({adId: retLoad.adId});
+                this.platObj.reportAdShow({ adId: retLoad.adId });
                 let cb = () => {
                     this.closeAd();
                     xfire.offShow(cb);
@@ -768,7 +770,7 @@ class FeedsAdHuaWei extends FeedsAd {
 
     private createNative(id: string): Promise<boolean> {
         if (xfire.plat !== xfire.PLAT_HUAWEI) return;
-        return new Promise<boolean> ((resolve) => {
+        return new Promise<boolean>((resolve) => {
             if (this.platObj) {
                 this.platObj.destroy();
                 this.platObj = null;
@@ -788,7 +790,7 @@ class FeedsAdHuaWei extends FeedsAd {
                 resolve(false);
                 return;
             }
-            this.platObj.onStatusChanged((ret: {status: string; uniqueId: string}) => {
+            this.platObj.onStatusChanged((ret: { status: string; uniqueId: string }) => {
                 if (xfire.plat !== xfire.PLAT_HUAWEI) return;
                 if (this.clicked || this.adId !== ret.uniqueId) {
                     return;
@@ -818,7 +820,7 @@ class FeedsAdHuaWei extends FeedsAd {
                         break;
                 }
             });
-            this.platObj.onDownloadProgress((data: {progress: number/*0-100*/; uniqueId: string}) => {
+            this.platObj.onDownloadProgress((data: { progress: number/*0-100*/; uniqueId: string }) => {
                 if (this.downloadStatus === '下载中' && this.adId === data.uniqueId) {
                     if (this.lblDownload) this.lblDownload.string = `下载中 ${data.progress}%`;
                 }
@@ -828,7 +830,7 @@ class FeedsAdHuaWei extends FeedsAd {
 
     private loadNative(): Promise<any> {
         if (xfire.plat !== xfire.PLAT_HUAWEI) return;
-        return new Promise<any> ((resolve) => {
+        return new Promise<any>((resolve) => {
             if (this.platObj == null) {
                 resolve(null);
                 return;
@@ -851,7 +853,7 @@ class FeedsAdHuaWei extends FeedsAd {
              *     ]
              * }
              */
-            this.platObj.onLoad((ret: {adList: any[]}) => {
+            this.platObj.onLoad((ret: { adList: any[] }) => {
                 console.log('原生广告加载成功：' + this.config.name);
                 if (ret.adList != null && ret.adList.length > 0) {
                     this.clickReported = false;
@@ -889,7 +891,7 @@ class FeedsAdHuaWei extends FeedsAd {
             }
         }
         this.adId = ad.adId;
-        let iData: SNode = {'name': '结点_原生插屏排版', 'size': [720, 1280], 'components': [{'name': 'Widget', 'properties': {'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null}}, {'name': 'BlockInput'}], 'children': [{'name': '黑底', 'active': false, 'color': '000000', 'opacity': 128, 'size': [720, 1280], 'components': [{'name': 'Sprite', 'properties': {'image': 'bg1x1', 'type': 0, 'sizeMode': 0}}, {'name': 'Widget', 'properties': {'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null}}]}, {'name': 'root', 'size': [900, 630], 'components': [{'name': 'BlockInput'}], 'children': [{'name': 'bg', 'size': [900, 630], 'components': [{'name': 'Sprite', 'properties': {'image': 'bg1x1', 'type': 0, 'sizeMode': 0}}]}, {'name': '图片', 'pos': [0, 82], 'size': [880, 446], 'components': [{'name': 'Sprite', 'properties': {'image': '', 'type': 0, 'sizeMode': 0}}, {'name': 'Widget', 'properties': {'left': 10, 'top': 10, 'right': 10, 'alignMode': null}}]}, {'name': '标题', 'color': '000000', 'pos': [-423, -220], 'anchor': [0, 0.5], 'size': [500, 70], 'components': [{'name': 'Label', 'properties': {'string': '标题', 'hAlign': 0, 'vAlign': 1, 'fontSize': 70, 'lineHeight': 75, 'overflow': 2, 'cacheMode': 0}}, {'name': 'Widget', 'properties': {'bottom': 60, 'alignMode': null}}]}, {'name': '描述', 'active': false, 'color': '000000', 'pos': [0, -259], 'size': [604, 70], 'components': [{'name': 'Label', 'properties': {'string': '描述', 'hAlign': 1, 'vAlign': 1, 'fontSize': 45, 'lineHeight': 50, 'overflow': 2, 'cacheMode': 0}}]}, {'name': '来源', 'color': '000000', 'pos': [-423, -306], 'anchor': [0, 0], 'size': [800, 50], 'components': [{'name': 'Label', 'properties': {'string': '描述', 'hAlign': 0, 'vAlign': 2, 'fontSize': 32, 'lineHeight': 40, 'overflow': 2, 'cacheMode': 0}}, {'name': 'Widget', 'properties': {'bottom': 9, 'alignMode': null}}]}, {'name': '按钮全面板', 'size': [900, 630], 'components': [{'name': 'Button', 'properties': {'transition': 0, 'normalSprite': 'default_btn_normal'}}, {'name': 'Widget', 'properties': {'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null}}]}, {'name': '按钮安装', 'pos': [220, -219], 'size': [220, 80], 'components': [{'name': 'Button', 'properties': {'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'default_btn_normal'}}, {'name': 'Widget', 'properties': {'right': 120, 'bottom': 56, 'alignMode': null}}], 'children': [{'name': 'Background', 'color': 'd8163d', 'size': [220, 80], 'components': [{'name': 'Sprite', 'properties': {'image': '圆角矩形', 'type': 1, 'sizeMode': 0, 'slice': [11, 11, 11, 11]}}], 'children': [{'name': 'Label', 'size': [180, 63], 'components': [{'name': 'Label', 'properties': {'string': '点击安装', 'hAlign': 1, 'vAlign': 1, 'fontSize': 45, 'lineHeight': 50, 'overflow': 0, 'cacheMode': 0}}]}]}]}, {'name': '排版按钮关闭', 'pos': [399.8, -216.8], 'components': [{'name': 'Widget', 'properties': {'right': 50.19999999999999, 'bottom': 98.19999999999999, 'alignMode': null}}], 'children': [{'name': '按钮关闭', 'pos': [-1.0658141036401503e-14, 1.0658141036401503e-14], 'size': [32, 32], 'scale': [0.7, 0.7], 'components': [{'name': 'Button', 'properties': {'transition': 0, 'normalSprite': 'x3'}}], 'children': [{'name': 'Background', 'size': [90, 90], 'components': [{'name': 'Sprite', 'properties': {'image': 'x3', 'type': 0, 'sizeMode': 0}}]}]}]}, {'name': '广告标记', 'color': '000000', 'pos': [451, -316], 'anchor': [1, 0], 'size': [65, 34], 'scale': [1.5, 1.5], 'components': [{'name': 'Sprite', 'properties': {'image': '广告标记', 'type': 0, 'sizeMode': 1}}, {'name': 'Widget', 'properties': {'right': -1, 'bottom': -1, 'alignMode': null}}]}]}]};
+        let iData: SNode = { 'name': '结点_原生插屏排版', 'size': [720, 1280], 'components': [{ 'name': 'Widget', 'properties': { 'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null } }, { 'name': 'BlockInput' }], 'children': [{ 'name': '黑底', 'active': false, 'color': '000000', 'opacity': 128, 'size': [720, 1280], 'components': [{ 'name': 'Sprite', 'properties': { 'image': 'bg1x1', 'type': 0, 'sizeMode': 0 } }, { 'name': 'Widget', 'properties': { 'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null } }] }, { 'name': 'root', 'size': [900, 630], 'components': [{ 'name': 'BlockInput' }], 'children': [{ 'name': 'bg', 'size': [900, 630], 'components': [{ 'name': 'Sprite', 'properties': { 'image': 'bg1x1', 'type': 0, 'sizeMode': 0 } }] }, { 'name': '图片', 'pos': [0, 82], 'size': [880, 446], 'components': [{ 'name': 'Sprite', 'properties': { 'image': '', 'type': 0, 'sizeMode': 0 } }, { 'name': 'Widget', 'properties': { 'left': 10, 'top': 10, 'right': 10, 'alignMode': null } }] }, { 'name': '标题', 'color': '000000', 'pos': [-423, -220], 'anchor': [0, 0.5], 'size': [500, 70], 'components': [{ 'name': 'Label', 'properties': { 'string': '标题', 'hAlign': 0, 'vAlign': 1, 'fontSize': 70, 'lineHeight': 75, 'overflow': 2, 'cacheMode': 0 } }, { 'name': 'Widget', 'properties': { 'bottom': 60, 'alignMode': null } }] }, { 'name': '描述', 'active': false, 'color': '000000', 'pos': [0, -259], 'size': [604, 70], 'components': [{ 'name': 'Label', 'properties': { 'string': '描述', 'hAlign': 1, 'vAlign': 1, 'fontSize': 45, 'lineHeight': 50, 'overflow': 2, 'cacheMode': 0 } }] }, { 'name': '来源', 'color': '000000', 'pos': [-423, -306], 'anchor': [0, 0], 'size': [800, 50], 'components': [{ 'name': 'Label', 'properties': { 'string': '描述', 'hAlign': 0, 'vAlign': 2, 'fontSize': 32, 'lineHeight': 40, 'overflow': 2, 'cacheMode': 0 } }, { 'name': 'Widget', 'properties': { 'bottom': 9, 'alignMode': null } }] }, { 'name': '按钮全面板', 'size': [900, 630], 'components': [{ 'name': 'Button', 'properties': { 'transition': 0, 'normalSprite': 'default_btn_normal' } }, { 'name': 'Widget', 'properties': { 'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null } }] }, { 'name': '按钮安装', 'pos': [220, -219], 'size': [220, 80], 'components': [{ 'name': 'Button', 'properties': { 'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'default_btn_normal' } }, { 'name': 'Widget', 'properties': { 'right': 120, 'bottom': 56, 'alignMode': null } }], 'children': [{ 'name': 'Background', 'color': 'd8163d', 'size': [220, 80], 'components': [{ 'name': 'Sprite', 'properties': { 'image': '圆角矩形', 'type': 1, 'sizeMode': 0, 'slice': [11, 11, 11, 11] } }], 'children': [{ 'name': 'Label', 'size': [180, 63], 'components': [{ 'name': 'Label', 'properties': { 'string': '点击安装', 'hAlign': 1, 'vAlign': 1, 'fontSize': 45, 'lineHeight': 50, 'overflow': 0, 'cacheMode': 0 } }] }] }] }, { 'name': '排版按钮关闭', 'pos': [399.8, -216.8], 'components': [{ 'name': 'Widget', 'properties': { 'right': 50.19999999999999, 'bottom': 98.19999999999999, 'alignMode': null } }], 'children': [{ 'name': '按钮关闭', 'pos': [-1.0658141036401503e-14, 1.0658141036401503e-14], 'size': [32, 32], 'scale': [0.7, 0.7], 'components': [{ 'name': 'Button', 'properties': { 'transition': 0, 'normalSprite': 'x3' } }], 'children': [{ 'name': 'Background', 'size': [90, 90], 'components': [{ 'name': 'Sprite', 'properties': { 'image': 'x3', 'type': 0, 'sizeMode': 0 } }] }] }] }, { 'name': '广告标记', 'color': '000000', 'pos': [451, -316], 'anchor': [1, 0], 'size': [65, 34], 'scale': [1.5, 1.5], 'components': [{ 'name': 'Sprite', 'properties': { 'image': '广告标记', 'type': 0, 'sizeMode': 1 } }, { 'name': 'Widget', 'properties': { 'right': -1, 'bottom': -1, 'alignMode': null } }] }] }] };
 
         let node = SimpleUI.instantiate(iData, XFireAppHuawei.resLoader);
         // 是否模拟插屏，不模拟插屏就不能屏蔽触摸
@@ -1024,11 +1026,11 @@ class FeedsAdHuaWei extends FeedsAd {
                         this.clickReported = true;
                         console.log('上报点击');
                         /** 上报会拉起落地页 */
-                        this.platObj.reportAdClick({adId: this.adId});
+                        this.platObj.reportAdClick({ adId: this.adId });
                     }
                     // 是否自动开始下载，如果应用已经安装，则会唤醒应用
                     if ((xfire as XFireAppHuawei).feedsAutoDownload) {
-                        this.platObj.startDownload({adId: this.adId});
+                        this.platObj.startDownload({ adId: this.adId });
                     }
                 });
             };

@@ -50,11 +50,12 @@
  *
  */
 
+import xfire from './xfire';
 import XFireApp, { AdCfg, InterstitialAd, LoginError, LoginResult, SdkCfg, SystemInfo, VideoAd } from './xfire_base';
 
 const ksapi: any = (window as any).ks;
 
-export default class XFireAppKuaiShou extends XFireApp{
+export default class XFireAppKuaiShou extends XFireApp {
     public constructor() {
         super();
         this.logined = true;
@@ -107,7 +108,7 @@ export default class XFireAppKuaiShou extends XFireApp{
     }
 }
 
-class VideoAdKuaiShou extends VideoAd{
+class VideoAdKuaiShou extends VideoAd {
     private playCb: (end: boolean) => void = null;
 
     public load(): void {

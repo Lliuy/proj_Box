@@ -21,6 +21,7 @@ PC端平台特性：
     1.发布为微信工程
 *******************************************************************************/
 
+import xfire from './xfire';
 import XFireApp, { AdCfg, BannerAd, GridAd, InterstitialAd, LaunchOptions, LoginError, LoginResult, OrderInfo, SdkCfg, ShareInfo, SystemInfo, VideoAd, XFeedbackButton, XGameClubButton, XUserInfoButton, XUserInfoWithSignature } from './xfire_base';
 import XFireConfigs from './xfire_config';
 

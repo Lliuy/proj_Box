@@ -16,6 +16,7 @@
  *
  */
 
+import xfire from './xfire';
 import XFireApp, { AdCfg, AppBoxAd, AppConfig, BannerAd, InterstitialAd, LaunchOptions, LoginError, LoginResult, OrderInfo, SdkCfg, ShareInfo, SystemInfo, VideoAd, XUserInfoButton, XUserInfoWithSignature } from './xfire_base';
 import XFireConfigs from './xfire_config';
 
@@ -36,7 +37,7 @@ if (cc.sys.platform === cc.sys.WECHAT_GAME && win.qq != null && win.tt == null &
         justShown = true;
         justHidden = false;
         if (res) {
-            showOptions = {scene: 0, query: {}, referrerInfo: {}};
+            showOptions = { scene: 0, query: {}, referrerInfo: {} };
             if (res.query) {
                 showOptions.query = res.query;
             }
@@ -69,7 +70,7 @@ if (cc.sys.platform === cc.sys.WECHAT_GAME && win.qq != null && win.tt == null &
     };
 }
 
-export default class XFireAppQQ extends XFireApp{
+export default class XFireAppQQ extends XFireApp {
     private static validateNativeUserInfoResult(res: any): XUserInfoWithSignature {
         if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
@@ -212,18 +213,18 @@ export default class XFireAppQQ extends XFireApp{
     }
 
     public getSetting(params: {
-        success?: (authSetting: {[key: string]: boolean}) => void;
+        success?: (authSetting: { [key: string]: boolean }) => void;
         fail?: (err) => void;
         complete?: () => void;
     }): Promise<{
-        authSetting?: {[key: string]: boolean};
+        authSetting?: { [key: string]: boolean };
         error?: string;
     }> {
         if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         return new Promise<{
-            authSetting?: {[key: string]: boolean};
+            authSetting?: { [key: string]: boolean };
             error?: string;
         }>((resolve) => {
             if (!(cc.sys.platform === cc.sys.WECHAT_GAME)) {
@@ -242,14 +243,14 @@ export default class XFireAppQQ extends XFireApp{
                     if (lParams.success) {
                         lParams.success(result);
                     }
-                    resolve({authSetting: result});
+                    resolve({ authSetting: result });
                 },
                 fail: (err) => {
                     let error = JSON.stringify(err);
                     if (lParams.fail) {
                         lParams.fail(error);
                     }
-                    resolve({error});
+                    resolve({ error });
                 },
                 complete: () => {
                     if (lParams.complete) {
@@ -286,13 +287,13 @@ export default class XFireAppQQ extends XFireApp{
                     if (lParams.success) {
                         lParams.success(userInfo);
                     }
-                    resolve({userInfo});
+                    resolve({ userInfo });
                 },
                 fail: (err) => {
                     if (lParams.fail) {
                         lParams.fail(JSON.stringify(err));
                     }
-                    resolve({error: JSON.stringify(err)});
+                    resolve({ error: JSON.stringify(err) });
                 },
                 complete: () => {
                     if (lParams.complete) {
@@ -303,7 +304,7 @@ export default class XFireAppQQ extends XFireApp{
         });
     }
 
-    public createUserInfoButton(spaceNode: cc.Node, left: number, top: number, width: number, height: number,  imagePath: string = null): XUserInfoButton {
+    public createUserInfoButton(spaceNode: cc.Node, left: number, top: number, width: number, height: number, imagePath: string = null): XUserInfoButton {
         if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
@@ -353,7 +354,7 @@ export default class XFireAppQQ extends XFireApp{
             }
         }
         if (imagePath != null) {
-            btn = qqapi.createUserInfoButton({ type: 'image', image: imagePath, style: {left: rect.left, top: rect.top, width: rect.width, height: rect.height}});
+            btn = qqapi.createUserInfoButton({ type: 'image', image: imagePath, style: { left: rect.left, top: rect.top, width: rect.width, height: rect.height } });
         }
         else {
             btn = qqapi.createUserInfoButton({ type: 'text', text: ' ', style: { left: rect.left, top: rect.top, width: rect.width, height: rect.height, backgroundColor: '#00000000' } });
@@ -394,7 +395,7 @@ export default class XFireAppQQ extends XFireApp{
         if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
-        return new Promise<boolean> ((resolve) => {
+        return new Promise<boolean>((resolve) => {
             qqapi.setClipboardData({
                 data: content,
                 success: () => {
@@ -411,7 +412,7 @@ export default class XFireAppQQ extends XFireApp{
         if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
-        return new Promise<string> ((resolve) => {
+        return new Promise<string>((resolve) => {
             qqapi.getClipboardData({
                 success: (res) => {
                     resolve(res.data);
@@ -424,30 +425,30 @@ export default class XFireAppQQ extends XFireApp{
     }
 
     public login(param: {
-            timeout?: number;                       // 超时时间，单位ms
-            success?: (res: LoginResult) => void;
-            fail?: (err: LoginError) => void;
-            complete?: () => void;
-        }= {}): void {
+        timeout?: number;                       // 超时时间，单位ms
+        success?: (res: LoginResult) => void;
+        fail?: (err: LoginError) => void;
+        complete?: () => void;
+    } = {}): void {
         if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         qqapi.login({
-            success(res: {errMsg: string; code?: string}) {
+            success(res: { errMsg: string; code?: string }) {
                 if (res.code) {
                     if (param.success) {
-                        param.success({plat: this.plat, code: res.code});
+                        param.success({ plat: this.plat, code: res.code });
                     }
                 }
                 else {
                     if (param.fail) {
-                        param.fail({msg: res.errMsg});
+                        param.fail({ msg: res.errMsg });
                     }
                 }
             },
             fail() {
                 if (param.fail) {
-                    param.fail({msg: '登录失败'});
+                    param.fail({ msg: '登录失败' });
                 }
             },
             complete() {
@@ -544,7 +545,7 @@ export default class XFireAppQQ extends XFireApp{
             return;
         }
         let bdOptions = qqapi.getLaunchOptionsSync();
-        let ret: LaunchOptions = {scene: 0, query: {}, referrerInfo: {}};
+        let ret: LaunchOptions = { scene: 0, query: {}, referrerInfo: {} };
         ret.scene = bdOptions.scene == null ? 0 : bdOptions.scene;
         if (bdOptions.query != null) {
             ret.query = bdOptions.query;
@@ -594,7 +595,7 @@ export default class XFireAppQQ extends XFireApp{
         if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
-        qqapi.setKeepScreenOn({keepScreenOn: on});
+        qqapi.setKeepScreenOn({ keepScreenOn: on });
     }
 
     public getSystemInfoSync(): SystemInfo {
@@ -620,12 +621,12 @@ export default class XFireAppQQ extends XFireApp{
             return;
         }
         let payPointCfg = this.getPayPointConfig(payPoint);
-        let orderInfo: OrderInfo = {payPoint, orderid, goodsName: payPointCfg.goods, goodsId: payPointCfg.id, count: payPointCfg.count == null ? 1 : payPointCfg.count, price: payPointCfg.price};
+        let orderInfo: OrderInfo = { payPoint, orderid, goodsName: payPointCfg.goods, goodsId: payPointCfg.id, count: payPointCfg.count == null ? 1 : payPointCfg.count, price: payPointCfg.price };
         // 先预下单
         let result = await this.httpGetJsonWithBody<{
             result: 'ok' | 'fail';
             msg: string;
-            data: {prepayId: string; orderid: string; test?: boolean};
+            data: { prepayId: string; orderid: string; test?: boolean };
         }>('https://minigame.orbn.top/minigame/pay/qqmini/prepay', {
             id: this.userid,
             session: this.userSession,
@@ -658,10 +659,10 @@ export default class XFireAppQQ extends XFireApp{
                 let cancel = false;
                 let doCancelOrder = () => {
                     this.httpGetJsonWithBody('https://minigame.orbn.top/minigame/pay/qqmini/cancel', {
-                                id: this.userid,
-                                session: this.userSession,
-                                orderid: result.json.data.orderid
-                            });
+                        id: this.userid,
+                        session: this.userSession,
+                        orderid: result.json.data.orderid
+                    });
                 };
                 if (res) {
                     switch (res.errCode) {
@@ -725,7 +726,7 @@ export default class XFireAppQQ extends XFireApp{
                 let ret = await this.httpGetJsonWithBody<{
                     result: 'ok' | 'fail';
                     msg: string;
-                    data: {goodsList: {goods: string; count: number; orderid: string}[]};
+                    data: { goodsList: { goods: string; count: number; orderid: string }[] };
                 }>('https://minigame.orbn.top/minigame/pay/qqmini/getMyGoods', {
                     id: this.userid,
                     session: this.userSession
@@ -792,11 +793,11 @@ export default class XFireAppQQ extends XFireApp{
     }
 }
 
-class BannerAdQQ extends BannerAd{
+class BannerAdQQ extends BannerAd {
     // 需要展示的位置与宽高
-    private movetoBox: {left: number; top: number; width: number; height: number} = null;
+    private movetoBox: { left: number; top: number; width: number; height: number } = null;
     private scaleToPlat = 1;
-    private realSize = {width: 0, height: 0};   // 平台单位
+    private realSize = { width: 0, height: 0 };   // 平台单位
 
     public constructor(sdkConfig: SdkCfg, config: AdCfg) {
         super(sdkConfig, config);
@@ -804,8 +805,8 @@ class BannerAdQQ extends BannerAd{
             return;
         }
         let screenSize = cc.view.getVisibleSize();
-        let cfgStyle = config.style || {left: 0, bottom: 0, width: screenSize.width, height: screenSize.width / 2.917};
-        this.movetoBox = {left: cfgStyle.left, top: screenSize.height - cfgStyle.bottom - cfgStyle.height, width: cfgStyle.width, height: cfgStyle.height};
+        let cfgStyle = config.style || { left: 0, bottom: 0, width: screenSize.width, height: screenSize.width / 2.917 };
+        this.movetoBox = { left: cfgStyle.left, top: screenSize.height - cfgStyle.bottom - cfgStyle.height, width: cfgStyle.width, height: cfgStyle.height };
         let sysInfo = qqapi.getSystemInfoSync();
         this.scaleToPlat = sysInfo.screenWidth / screenSize.width;
         this.realSize.width = this.movetoBox.width * this.scaleToPlat;
@@ -821,13 +822,13 @@ class BannerAdQQ extends BannerAd{
             return;
         }
         // 定义相关接口
-        let genBannerAdStyle = (style: {left?: number; top?: number; width?: number; height?: number}): any => {
-            return {left: style.left * this.scaleToPlat, top: style.top * this.scaleToPlat, width: style.width * this.scaleToPlat, height: style.height * this.scaleToPlat};
+        let genBannerAdStyle = (style: { left?: number; top?: number; width?: number; height?: number }): any => {
+            return { left: style.left * this.scaleToPlat, top: style.top * this.scaleToPlat, width: style.width * this.scaleToPlat, height: style.height * this.scaleToPlat };
         };
 
         let style = genBannerAdStyle(this.movetoBox);
         let adIntervals = (this.config.duration || 30);
-        let param = {adUnitId: this.config.id, adIntervals: adIntervals < 30 ? 30 : adIntervals, style};
+        let param = { adUnitId: this.config.id, adIntervals: adIntervals < 30 ? 30 : adIntervals, style };
         let banner = qqapi.createBannerAd(param);
         this.platObj = banner;
         if (banner == null) {
@@ -867,14 +868,14 @@ class BannerAdQQ extends BannerAd{
         }
     }
 
-    public get size(): {width: number; height: number} {
+    public get size(): { width: number; height: number } {
         if (this.platObj == null) {
-            return {width: 0, height: 0};
+            return { width: 0, height: 0 };
         }
         else {
             let width = this.realSize.width / this.scaleToPlat;
             let height = this.realSize.height / this.scaleToPlat;
-            return {width, height};
+            return { width, height };
         }
     }
 
@@ -901,7 +902,7 @@ class BannerAdQQ extends BannerAd{
             return;
         }
         let sizeChanged = this.movetoBox.width !== width || this.movetoBox.height !== height;
-        this.movetoBox = {left, top, width, height};
+        this.movetoBox = { left, top, width, height };
         if (this.platObj != null) {
             let dstLeft = left * this.scaleToPlat;
             let dstTop = (top + height) * this.scaleToPlat - this.realSize.height;
@@ -950,14 +951,14 @@ class BannerAdQQ extends BannerAd{
     }
 }
 
-class VideoAdQQ extends VideoAd{
+class VideoAdQQ extends VideoAd {
     private playCb: (end: boolean) => void = null;
 
     public load(): void {
         if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
-        let param = {adUnitId: this.config.id};
+        let param = { adUnitId: this.config.id };
         let video = qqapi.createRewardedVideoAd(param);
         this.platObj = video;
         if (video == null) {
@@ -1015,12 +1016,12 @@ class VideoAdQQ extends VideoAd{
     }
 }
 
-class AppBoxAdQQ extends AppBoxAd{
+class AppBoxAdQQ extends AppBoxAd {
     public load(): void {
         if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
-        let param = {adUnitId: this.config.id};
+        let param = { adUnitId: this.config.id };
         let box = qqapi.createAppBox(param);
         this.platObj = box;
         if (box == null) {
@@ -1054,7 +1055,7 @@ class InterstitialAdQQ extends InterstitialAd {
         if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
-        let param = {adUnitId: this.config.id};
+        let param = { adUnitId: this.config.id };
         let ad = qqapi.createInterstitialAd(param);
         if (ad != null) {
             console.log('创建插屏成功');

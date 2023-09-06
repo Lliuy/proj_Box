@@ -16,7 +16,7 @@
     读档：[await] Archive.getInstance().load();
 
 范例：
-import GameData from './GameData';
+import { GameData } from './GameData';
 import XArchive from './XModule/XArchive';
 
 export default class Archive extends XArchive {
@@ -64,9 +64,6 @@ interface DocV1{
 
 *******************************************************************************/
 
-import xfire from "../XFire/xfire";
-import xfireol from "../XFire/xfireol";
-
 /** 存档名 */
 const SaveDoc = '__xfire_save_doc';
 /** 存档警告长度 */
@@ -75,16 +72,19 @@ const DocWarnLength = 1800;
 const DocMaxLength = 2000;
 
 export default abstract class XArchive {
+    protected docWarnLength = DocWarnLength;
+    protected docMaxLength = DocMaxLength;
+    protected filenamePrefix = '';
     protected abstract doc;
     /** 上次存档字符串，通过对比可判断是否需要存档，减少存档次数 */
     private lastSavedData = '';
 
     /** 初始化存档，会触发一次onAfterLoad */
-    public abstract initDoc(): void;
+    public abstract initDoc (): void;
 
     /** 加载存档 */
-    public load(): Promise<boolean> {
-        return new Promise<boolean> (async (resolve) => {
+    public load (): Promise<boolean> {
+        return new Promise<boolean>(async (resolve) => {
             if (!this.doc) {
                 this.initDoc();
                 if (this.doc == null) {
@@ -92,7 +92,6 @@ export default abstract class XArchive {
                     resolve(false);
                     return;
                 }
-                this.onAfterLoad();
             }
             let strDoc = this.localLoad();
             if (xfire.mustArchiveOnline() && xfireol.isLogined()) {
@@ -100,6 +99,11 @@ export default abstract class XArchive {
                 if (onlineData != null && onlineData.length > 2) {
                     strDoc = onlineData;
                 }
+            }
+            if (typeof strDoc !== 'string') {
+                this.onAfterLoad();
+                resolve(true);
+                return;
             }
             /** 解析存档字符串 */
             let doc;
@@ -110,11 +114,13 @@ export default abstract class XArchive {
                 }
             } catch (error) {
                 console.error(error);
+                this.onAfterLoad();
                 resolve(false);
                 return;
             }
             // 版本判断
             if (doc == null) {
+                this.onAfterLoad();
                 resolve(false);
                 return;
             }
@@ -125,6 +131,7 @@ export default abstract class XArchive {
                 // 没有转换函数，直接抛弃存档
                 else {
                     console.warn(`无法转换V${doc.version}存档`);
+                    this.onAfterLoad();
                     resolve(false);
                     return;
                 }
@@ -139,8 +146,8 @@ export default abstract class XArchive {
     }
 
     /** 保存数据 */
-    public save(): Promise<boolean> {
-        return new Promise<boolean> (async (resolve) => {
+    public save (): Promise<boolean> {
+        return new Promise<boolean>(async (resolve) => {
             this.onBeforeSave();
             if (this.doc == null) {
                 console.error('存档未初始化');
@@ -157,19 +164,20 @@ export default abstract class XArchive {
                 resolve(true);
                 return;
             }
-
-            // 存档长度判断
-            if (strDoc.length >= DocMaxLength) {
-                console.error(`存档长度过长${strDoc.length}`);
-                resolve(false);
-                return;
-            }
-            if (strDoc.length >= DocWarnLength) {
-                console.warn(`存档长度已达${strDoc.length}`);
-            }
             this.lastSavedData = strDoc;
-            cc.sys.localStorage.setItem(SaveDoc, strDoc);
+            // 本地存档
+            this.localSave(strDoc);
+            // 云存档
             if (xfire.mustArchiveOnline() && xfireol.isLogined()) {
+                // 存档长度判断
+                if (strDoc.length >= this.docMaxLength) {
+                    console.error(`云存档长度过长${strDoc.length}`);
+                    resolve(false);
+                    return;
+                }
+                if (strDoc.length >= this.docWarnLength) {
+                    console.warn(`云存档长度已达${strDoc.length}`);
+                }
                 xfireol.setUserData({
                     content: strDoc
                 });
@@ -177,16 +185,15 @@ export default abstract class XArchive {
             resolve(true);
         });
     }
-
     /** 准备数据 */
-    protected abstract onBeforeSave(): void;
+    protected abstract onBeforeSave (): void;
 
     /** 数据输出 */
-    protected abstract onAfterLoad(): void;
+    protected abstract onAfterLoad (): void;
 
     /** 加载本地存档 */
-    private localLoad() {
-        let strDoc = cc.sys.localStorage.getItem(SaveDoc);
+    private localLoad () {
+        let strDoc = cc.sys.localStorage.getItem(this.filenamePrefix + SaveDoc);
         if (strDoc == null || strDoc === '') {
             return null;
         }
@@ -194,7 +201,7 @@ export default abstract class XArchive {
     }
 
     /** 存本地 */
-    private localSave(strDoc: string) {
-        cc.sys.localStorage.setItem(SaveDoc, strDoc);
+    private localSave (strDoc: string) {
+        cc.sys.localStorage.setItem(this.filenamePrefix + SaveDoc, strDoc);
     }
 }

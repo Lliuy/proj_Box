@@ -11,8 +11,6 @@
     ✦查看进度，progress属性，没有任务时，progress属性将返回0
 *******************************************************************************/
 
-import xfire from "../XFire/xfire";
-
 export abstract class Task {
     public end = false;
     /** 任务进度0-1 */
@@ -38,7 +36,7 @@ export abstract class Task {
 /** 任务池 */
 export default class XTaskPool {
     private totalWeight = 0;
-    private tasks: { weight: number; task: Task; block: boolean }[] = [];
+    private tasks: {weight: number; task: Task; block: boolean}[] = [];
     private completed = false;
     /** 上次计算的进度，防止倒退 */
     private lastRet = 0;
@@ -58,7 +56,7 @@ export default class XTaskPool {
             if (typeof params.fakeTotalPercents === 'number' && params.fakeTotalPercents > 0) this.fakeTotalPercents = Math.min(0.99, params.fakeTotalPercents);
             if (typeof params.fakeMaxTime === 'number' && params.fakeMaxTime > 0) this.fakeMaxTime = params.fakeMaxTime;
         }
-
+        
     }
 
     /**
@@ -112,12 +110,12 @@ export default class XTaskPool {
         if (CC_DEV && weight < 0) {
             console.error('权重不能为负数');
         }
-        this.tasks.push({ weight, task, block });
+        this.tasks.push({weight, task, block});
         this.totalWeight += weight;
     }
 
     public start(): Promise<void> {
-        return new Promise<void>((resolve) => {
+        return new Promise<void> ((resolve) => {
             this.completed = false;
             this.startTimestamp = xfire.currentTimeMillis;
             (async () => {
@@ -137,7 +135,7 @@ export default class XTaskPool {
                         resolve();
                         break;
                     }
-                } while (!this.completed);
+                }while (!this.completed);
             })();
         });
     }

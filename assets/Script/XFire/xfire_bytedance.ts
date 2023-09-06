@@ -20,6 +20,7 @@
 import SimpleUI from '../XModule/SimpleUI';
 import { SNode } from '../XModule/SimpleUI/SUIData';
 import SUIResLoader from '../XModule/SimpleUI/SUIResLoader';
+import xfire from './xfire';
 import XFireApp, { AdCfg, BannerAd, InterstitialAd, LaunchOptions, LoginError, LoginResult, OrderInfo, SdkCfg, ShareInfo, SystemInfo, VideoAd, XFeedbackButton, XMoreGamesButton, XUserInfoWithSignature } from './xfire_base';
 import XFireConfigs from './xfire_config';
 
@@ -29,7 +30,7 @@ const byteapi: any = (window as any).tt;
 let win: any = window;
 let showOptions: LaunchOptions = null;
 
-export default class XFireAppByteDance extends XFireApp{
+export default class XFireAppByteDance extends XFireApp {
     public static resLoader: SUIResLoader = null;
     public static bindButtonClickListener(nodeOrBtn: cc.Node | cc.Button, listener: (event: cc.Event) => void) {
         if (xfire.plat !== xfire.PLAT_BYTEDANCE) {
@@ -323,7 +324,7 @@ export default class XFireAppByteDance extends XFireApp{
             if (navigateApp.enable !== true) {
                 continue;
             }
-            appLaunchOptions.push({appId: navigateApp.appId});
+            appLaunchOptions.push({ appId: navigateApp.appId });
         }
         let btn = byteapi.createMoreGamesButton({
             type: 'image',
@@ -351,18 +352,18 @@ export default class XFireAppByteDance extends XFireApp{
     }
 
     public getSetting(params: {
-        success?: (authSetting: {[key: string]: boolean}) => void;
+        success?: (authSetting: { [key: string]: boolean }) => void;
         fail?: (err) => void;
         complete?: () => void;
     }): Promise<{
-        authSetting?: {[key: string]: boolean};
+        authSetting?: { [key: string]: boolean };
         error?: string;
     }> {
         if (xfire.plat !== xfire.PLAT_BYTEDANCE) {
             return;
         }
         return new Promise<{
-            authSetting?: {[key: string]: boolean};
+            authSetting?: { [key: string]: boolean };
             error?: string;
         }>((resolve) => {
             let lParams = params || {};
@@ -377,14 +378,14 @@ export default class XFireAppByteDance extends XFireApp{
                     if (lParams.success) {
                         lParams.success(result);
                     }
-                    resolve({authSetting: result});
+                    resolve({ authSetting: result });
                 },
                 fail: (err) => {
                     let error = JSON.stringify(err);
                     if (lParams.fail) {
                         lParams.fail(error);
                     }
-                    resolve({error});
+                    resolve({ error });
                 },
                 complete: () => {
                     if (lParams.complete) {
@@ -409,7 +410,7 @@ export default class XFireAppByteDance extends XFireApp{
         return new Promise<{
             userInfo?: XUserInfoWithSignature;
             error?: string;
-        }> ((resolve) => {
+        }>((resolve) => {
             let lParams = params || {};
             byteapi.getUserInfo({
                 withCredentials: true,
@@ -418,13 +419,13 @@ export default class XFireAppByteDance extends XFireApp{
                     if (lParams.success) {
                         lParams.success(userInfo);
                     }
-                    resolve({userInfo});
+                    resolve({ userInfo });
                 },
                 fail: (err) => {
                     if (lParams.fail) {
                         lParams.fail(JSON.stringify(err));
                     }
-                    resolve({error: JSON.stringify(err)});
+                    resolve({ error: JSON.stringify(err) });
                 },
                 complete: () => {
                     if (lParams.complete) {
@@ -498,10 +499,10 @@ export default class XFireAppByteDance extends XFireApp{
                 return;
             }
             byteapi.checkShortcut({
-                success: (res: {status: {exist: boolean; needUpdate: boolean}; errMsg: string}) => {
+                success: (res: { status: { exist: boolean; needUpdate: boolean }; errMsg: string }) => {
                     resolve(res?.status?.exist && !res?.status?.needUpdate);
                 },
-                fail: (err: {errMsg: string}) => {
+                fail: (err: { errMsg: string }) => {
                     resolve(false);
                 }
             });
@@ -529,7 +530,7 @@ export default class XFireAppByteDance extends XFireApp{
         if (xfire.plat !== xfire.PLAT_BYTEDANCE) {
             return;
         }
-        return new Promise<boolean> ((resolve) => {
+        return new Promise<boolean>((resolve) => {
             byteapi.setClipboardData({
                 data: content,
                 success: () => {
@@ -546,7 +547,7 @@ export default class XFireAppByteDance extends XFireApp{
         if (xfire.plat !== xfire.PLAT_BYTEDANCE) {
             return;
         }
-        return new Promise<string> ((resolve) => {
+        return new Promise<string>((resolve) => {
             byteapi.getClipboardData({
                 success: (res) => {
                     resolve(res.data);
@@ -563,28 +564,28 @@ export default class XFireAppByteDance extends XFireApp{
         success?: (res: LoginResult) => void;
         fail?: (err: LoginError) => void;
         complete?: () => void;
-    }= {}): void {
+    } = {}): void {
         if (xfire.plat !== xfire.PLAT_BYTEDANCE) {
             return;
         }
         byteapi.login({
-            success: (res: {errMsg: string; code?: string}) => {
+            success: (res: { errMsg: string; code?: string }) => {
                 this.logined = true;
                 cc.sys.localStorage.setItem(XFireConfigs.平台账号登录标记, 'true');
                 if (res.code) {
                     if (param.success) {
-                        param.success({plat: this.plat, code: res.code});
+                        param.success({ plat: this.plat, code: res.code });
                     }
                 }
                 else {
                     if (param.fail) {
-                        param.fail({msg: res.errMsg});
+                        param.fail({ msg: res.errMsg });
                     }
                 }
             },
             fail: (res) => {
                 if (param.fail) {
-                    param.fail({msg: JSON.stringify(res)});
+                    param.fail({ msg: JSON.stringify(res) });
                 }
             },
             complete: () => {
@@ -647,13 +648,13 @@ export default class XFireAppByteDance extends XFireApp{
                     return;
                 }
                 this.recordCbA = this.toStartRecordCb;
-                this.recorder.start({duration: Math.max(this.toStartRecordDuration, 3)});
+                this.recorder.start({ duration: Math.max(this.toStartRecordDuration, 3) });
                 this.recordStartTime = xfire.gameTime;
                 this.toStartRecord = false;
                 this.toStartRecordCb = null;
             }, 0);
         });
-        this.recorder.start({duration: Math.max(duration, 3)});
+        this.recorder.start({ duration: Math.max(duration, 3) });
     }
 
     public endRecord(onEnd?: (videoPath: string, length: number) => void) {
@@ -832,7 +833,7 @@ export default class XFireAppByteDance extends XFireApp{
             return;
         }
         let bdOptions = byteapi.getLaunchOptionsSync();
-        let ret: LaunchOptions = {scene: 0, query: {}, referrerInfo: {}};
+        let ret: LaunchOptions = { scene: 0, query: {}, referrerInfo: {} };
         ret.scene = bdOptions.scene == null ? 0 : bdOptions.scene;
         if (bdOptions.query != null) {
             ret.query = bdOptions.query;
@@ -875,7 +876,7 @@ export default class XFireAppByteDance extends XFireApp{
         if (xfire.plat !== xfire.PLAT_BYTEDANCE) {
             return;
         }
-        byteapi.setKeepScreenOn({keepScreenOn: on});
+        byteapi.setKeepScreenOn({ keepScreenOn: on });
     }
 
     public getSystemInfoSync(): SystemInfo {
@@ -910,41 +911,41 @@ export default class XFireAppByteDance extends XFireApp{
 
 
     /** 判断平台是否支持创建意见反馈按钮 */
-    public supportFeedbackButton (): boolean {
+    public supportFeedbackButton(): boolean {
         return true;
     }
 
     // 创建客服按钮
-    public createFeedbackButton (spaceNode: cc.Node, left: number, top: number, width: number, height: number, imagePath: string = null): XFeedbackButton {
+    public createFeedbackButton(spaceNode: cc.Node, left: number, top: number, width: number, height: number, imagePath: string = null): XFeedbackButton {
         if (!(cc.sys.platform === cc.sys.BYTEDANCE_GAME) || xfire.plat !== xfire.PLAT_BYTEDANCE) {
             return null;
         }
         let rect = this.rectFromNodeToPlat(spaceNode, left, top, width, height);
         let btn = null;
         class XFeedbackButtonByteDance extends XFeedbackButton {
-            public constructor (platObj) {
+            public constructor(platObj) {
                 super(platObj);
             }
 
-            public show (): void {
+            public show(): void {
                 if (this.platObj) {
                     this.platObj.show();
                 }
             }
 
-            public hide (): void {
+            public hide(): void {
                 if (this.platObj) {
                     this.platObj.hide();
                 }
             }
 
-            public destroy (): void {
+            public destroy(): void {
                 if (this.platObj) {
                     this.platObj.destroy();
                 }
             }
 
-            protected nativeOnTap (cb: () => void): void {
+            protected nativeOnTap(cb: () => void): void {
                 if (!this.platObj) {
                     return;
                 }
@@ -957,7 +958,7 @@ export default class XFireAppByteDance extends XFireApp{
                 this.platObj.onTap(this.nativeCallback);
             }
 
-            protected nativeOffTap (cb: any): void {
+            protected nativeOffTap(cb: any): void {
                 if (!this.platObj) {
                     return;
                 }
@@ -990,12 +991,12 @@ export default class XFireAppByteDance extends XFireApp{
         }
 
         let payPointCfg = this.getPayPointConfig(payPoint);
-        let orderInfo: OrderInfo = {payPoint, orderid, goodsName: payPointCfg.goods, goodsId: payPointCfg.id, count: payPointCfg.count == null ? 1 : payPointCfg.count, price: payPointCfg.price};
+        let orderInfo: OrderInfo = { payPoint, orderid, goodsName: payPointCfg.goods, goodsId: payPointCfg.id, count: payPointCfg.count == null ? 1 : payPointCfg.count, price: payPointCfg.price };
         // 先预下单
         let result = await this.httpGetJsonWithBody<{
             result: 'ok' | 'fail';
             msg: string;
-            data: {prepayId: string; orderid: string};
+            data: { prepayId: string; orderid: string };
         }>('https://minigame.orbn.top/minigame/pay/bytedancemini/prepay', {
             id: this.userid,
             session: this.userSession,
@@ -1051,16 +1052,16 @@ export default class XFireAppByteDance extends XFireApp{
                     }
                 },
                 // tslint:disable-next-line: cyclomatic-complexity
-                fail: (res: {errCode: number}) => {
+                fail: (res: { errCode: number }) => {
                     console.log('pay fail:' + xfire.currentTimeMillis);
                     let err = '';
                     let cancel = false;
                     let doCancelOrder = () => {
                         this.httpGetJsonWithBody('https://minigame.orbn.top/minigame/pay/bytedancemini/cancel', {
-                                    id: this.userid,
-                                    session: this.userSession,
-                                    orderid: result.json.data.orderid
-                                });
+                            id: this.userid,
+                            session: this.userSession,
+                            orderid: result.json.data.orderid
+                        });
                     };
                     if (res) {
                         switch (res.errCode) {
@@ -1083,7 +1084,7 @@ export default class XFireAppByteDance extends XFireApp{
                             case 4: err = '网络异常'; break;
                             case 5: err = 'IOS 平台错误，当前平台不支持支付'; break;
                             case 6: err = '其他错误'; break;
-                            default:    err = `错误码${res.errCode}`;   break;
+                            default: err = `错误码${res.errCode}`; break;
                         }
                     }
                     console.log('支付失败:' + err, res);
@@ -1101,11 +1102,13 @@ export default class XFireAppByteDance extends XFireApp{
 
         // ios 抖音23.0.0以下计费接口被限制在触摸回调中执行
         if (this.isIOS && this.compareVersion(this.appVersion, '23.0.0') < 0) {
-            await this.showNativeModal({title: '购买确认', content: payPointCfg.desc, cb: (confirm) => {
-                if (confirm) {
-                    doPay();
+            await this.showNativeModal({
+                title: '购买确认', content: payPointCfg.desc, cb: (confirm) => {
+                    if (confirm) {
+                        doPay();
+                    }
                 }
-            }});
+            });
         }
         else {
             doPay();
@@ -1128,7 +1131,7 @@ export default class XFireAppByteDance extends XFireApp{
         if (xfire.plat !== xfire.PLAT_BYTEDANCE) {
             return;
         }
-        return new Promise<boolean> ((resolve) => {
+        return new Promise<boolean>((resolve) => {
             byteapi.checkSession({
                 success() {
                     resolve(true);
@@ -1141,17 +1144,17 @@ export default class XFireAppByteDance extends XFireApp{
     }
 
     /** 使用自渲染模态框等待用户确认 */
-    private showNativeModal(params: {title: string; content: string; cb?: (confirm: boolean) => void}): Promise<boolean> {
+    private showNativeModal(params: { title: string; content: string; cb?: (confirm: boolean) => void }): Promise<boolean> {
         if (xfire.plat !== xfire.PLAT_BYTEDANCE) {
             return;
         }
-        return new Promise<boolean> ((resolve) => {
+        return new Promise<boolean>((resolve) => {
             let layerAd = xfire.getLayerNativeAd();
             if (layerAd == null) {
                 console.log('异常，不存在原生层');
                 return null;
             }
-            let iData: SNode = {'name': '结点_对话框', 'size': [720, 1280], 'components': [{'name': 'Widget', 'properties': {'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null}}, {'name': 'BlockInput'}], 'children': [{'name': '黑底', 'active': false, 'color': '000000', 'opacity': 128, 'size': [720, 1280], 'components': [{'name': 'Sprite', 'properties': {'image': 'bg1x1', 'type': 0, 'sizeMode': 0}}, {'name': 'Widget', 'properties': {'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null}}]}, {'name': 'root', 'size': [600, 400], 'components': [{'name': 'BlockInput'}], 'children': [{'name': 'bg', 'size': [600, 400], 'components': [{'name': 'Sprite', 'properties': {'image': 'bg1x1', 'type': 0, 'sizeMode': 0}}]}, {'name': '割线x', 'color': 'c8c8c8', 'pos': [0, -110], 'size': [600, 4], 'components': [{'name': 'Sprite', 'properties': {'image': 'bg1x1', 'type': 0, 'sizeMode': 0}}]}, {'name': '割线y', 'color': 'c8c8c8', 'pos': [0, -110], 'anchor': [0.5, 1], 'size': [4, 90], 'components': [{'name': 'Sprite', 'properties': {'image': 'bg1x1', 'type': 0, 'sizeMode': 0}}]}, {'name': '标题', 'color': '000000', 'pos': [0, 160], 'size': [500, 70], 'components': [{'name': 'Label', 'properties': {'string': '标题', 'hAlign': 1, 'vAlign': 1, 'fontSize': 40, 'lineHeight': 40, 'overflow': 2, 'cacheMode': 0}}, {'name': 'Widget', 'properties': {'top': 5, 'alignMode': null}}]}, {'name': '描述', 'color': '5f5f5f', 'pos': [0, 110.383], 'anchor': [0.5, 1], 'size': [500, 200], 'components': [{'name': 'Label', 'properties': {'string': '免除', 'hAlign': 1, 'vAlign': 0, 'fontSize': 45, 'lineHeight': 50, 'overflow': 2, 'cacheMode': 0}}]}, {'name': '按钮取消', 'pos': [-150, -155], 'size': [300, 90], 'components': [{'name': 'Button', 'properties': {'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'default_btn_normal'}}, {'name': 'Widget', 'properties': {'right': 300, 'bottom': 0, 'alignMode': null}}], 'children': [{'name': 'Label', 'color': '000000', 'size': [80, 50.4], 'components': [{'name': 'Label', 'properties': {'string': '取消', 'hAlign': 1, 'vAlign': 1, 'fontSize': 40, 'lineHeight': 40, 'overflow': 0, 'cacheMode': 0}}]}]}, {'name': '按钮确定', 'pos': [150, -155], 'size': [300, 90], 'components': [{'name': 'Button', 'properties': {'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'default_btn_normal'}}, {'name': 'Widget', 'properties': {'right': 0, 'bottom': 0, 'alignMode': null}}], 'children': [{'name': 'Label', 'color': 'cd6661', 'size': [80, 50.4], 'components': [{'name': 'Label', 'properties': {'string': '确定', 'hAlign': 1, 'vAlign': 1, 'fontSize': 40, 'lineHeight': 40, 'overflow': 0, 'cacheMode': 0}}]}]}]}]};
+            let iData: SNode = { 'name': '结点_对话框', 'size': [720, 1280], 'components': [{ 'name': 'Widget', 'properties': { 'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null } }, { 'name': 'BlockInput' }], 'children': [{ 'name': '黑底', 'active': false, 'color': '000000', 'opacity': 128, 'size': [720, 1280], 'components': [{ 'name': 'Sprite', 'properties': { 'image': 'bg1x1', 'type': 0, 'sizeMode': 0 } }, { 'name': 'Widget', 'properties': { 'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'alignMode': null } }] }, { 'name': 'root', 'size': [600, 400], 'components': [{ 'name': 'BlockInput' }], 'children': [{ 'name': 'bg', 'size': [600, 400], 'components': [{ 'name': 'Sprite', 'properties': { 'image': 'bg1x1', 'type': 0, 'sizeMode': 0 } }] }, { 'name': '割线x', 'color': 'c8c8c8', 'pos': [0, -110], 'size': [600, 4], 'components': [{ 'name': 'Sprite', 'properties': { 'image': 'bg1x1', 'type': 0, 'sizeMode': 0 } }] }, { 'name': '割线y', 'color': 'c8c8c8', 'pos': [0, -110], 'anchor': [0.5, 1], 'size': [4, 90], 'components': [{ 'name': 'Sprite', 'properties': { 'image': 'bg1x1', 'type': 0, 'sizeMode': 0 } }] }, { 'name': '标题', 'color': '000000', 'pos': [0, 160], 'size': [500, 70], 'components': [{ 'name': 'Label', 'properties': { 'string': '标题', 'hAlign': 1, 'vAlign': 1, 'fontSize': 40, 'lineHeight': 40, 'overflow': 2, 'cacheMode': 0 } }, { 'name': 'Widget', 'properties': { 'top': 5, 'alignMode': null } }] }, { 'name': '描述', 'color': '5f5f5f', 'pos': [0, 110.383], 'anchor': [0.5, 1], 'size': [500, 200], 'components': [{ 'name': 'Label', 'properties': { 'string': '免除', 'hAlign': 1, 'vAlign': 0, 'fontSize': 45, 'lineHeight': 50, 'overflow': 2, 'cacheMode': 0 } }] }, { 'name': '按钮取消', 'pos': [-150, -155], 'size': [300, 90], 'components': [{ 'name': 'Button', 'properties': { 'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'default_btn_normal' } }, { 'name': 'Widget', 'properties': { 'right': 300, 'bottom': 0, 'alignMode': null } }], 'children': [{ 'name': 'Label', 'color': '000000', 'size': [80, 50.4], 'components': [{ 'name': 'Label', 'properties': { 'string': '取消', 'hAlign': 1, 'vAlign': 1, 'fontSize': 40, 'lineHeight': 40, 'overflow': 0, 'cacheMode': 0 } }] }] }, { 'name': '按钮确定', 'pos': [150, -155], 'size': [300, 90], 'components': [{ 'name': 'Button', 'properties': { 'transition': 3, 'zoomScale': 1.2, 'normalSprite': 'default_btn_normal' } }, { 'name': 'Widget', 'properties': { 'right': 0, 'bottom': 0, 'alignMode': null } }], 'children': [{ 'name': 'Label', 'color': 'cd6661', 'size': [80, 50.4], 'components': [{ 'name': 'Label', 'properties': { 'string': '确定', 'hAlign': 1, 'vAlign': 1, 'fontSize': 40, 'lineHeight': 40, 'overflow': 0, 'cacheMode': 0 } }] }] }] }] };
             let node = SimpleUI.instantiate(iData, XFireAppByteDance.resLoader);
             // 取出一些关键点
             let root = node.getChildByName('root');
@@ -1193,8 +1196,8 @@ export default class XFireAppByteDance extends XFireApp{
     }
 
     /** 使用模态框等待用户确认 */
-    private showPlatModal(params: {title: string; content: string}): Promise<boolean> {
-        return new Promise<boolean> ((resolve) => {
+    private showPlatModal(params: { title: string; content: string }): Promise<boolean> {
+        return new Promise<boolean>((resolve) => {
             byteapi.showModal({
                 title: params.title,
                 content: params.content,
@@ -1233,7 +1236,7 @@ export default class XFireAppByteDance extends XFireApp{
                 let ret = await this.httpGetJsonWithBody<{
                     result: 'ok' | 'fail';
                     msg: string;
-                    data: {goodsList: {goods: string; count: number; orderid: string}[]};
+                    data: { goodsList: { goods: string; count: number; orderid: string }[] };
                 }>('https://minigame.orbn.top/minigame/pay/bytedancemini/getMyGoods', {
                     id: this.userid,
                     session: this.userSession
@@ -1287,7 +1290,7 @@ export default class XFireAppByteDance extends XFireApp{
 
     private checkOrder(orderid: string): Promise<'成功' | '失败' | '已消费' | '未知'> {
         if (xfire.plat !== xfire.PLAT_BYTEDANCE) return;
-        return new Promise<'成功' | '失败' | '已消费' | '未知'> (async (resolve) => {
+        return new Promise<'成功' | '失败' | '已消费' | '未知'>(async (resolve) => {
             // 去服务器查询订单状态
             let ret = await this.httpGetJsonWithBody<{
                 result: 'ok' | 'fail';
@@ -1356,7 +1359,7 @@ export default class XFireAppByteDance extends XFireApp{
     }
 }
 
-class BannerAdByteDance extends BannerAd{
+class BannerAdByteDance extends BannerAd {
     // 需要展示的位置与宽高
     private movetoBox: { left: number; top: number; width: number; height: number } = null;
     private scaleToPlat = 1;
@@ -1384,7 +1387,7 @@ class BannerAdByteDance extends BannerAd{
             return;
         }
         // 定义style转换接口
-        let genBannerAdStyle = (_style: {left?: number; top?: number; width?: number; height?: number}): any => {
+        let genBannerAdStyle = (_style: { left?: number; top?: number; width?: number; height?: number }): any => {
             let style = xfire.copy(_style);
             if ((style.height / style.width) < (136 / 392)) {
                 let newWidth = style.height / (136 / 392);
@@ -1546,14 +1549,14 @@ class BannerAdByteDance extends BannerAd{
 }
 
 // 字节跳动的视频会自动更换源 无需反复销毁创建
-class VideoAdByteDance extends VideoAd{
+class VideoAdByteDance extends VideoAd {
     private playCb: (end: boolean) => void = null;
 
     public load(): void {
         if (xfire.plat !== xfire.PLAT_BYTEDANCE) {
             return;
         }
-        let param = {adUnitId: this.config.id};
+        let param = { adUnitId: this.config.id };
         let video = byteapi.createRewardedVideoAd(param);
         this.platObj = video;
         if (video == null) {
@@ -1617,7 +1620,7 @@ class InterstitialAdByteDance extends InterstitialAd {
         if (xfire.plat !== xfire.PLAT_BYTEDANCE) {
             return;
         }
-        let param = {adUnitId: this.config.id};
+        let param = { adUnitId: this.config.id };
         let ad = byteapi.createInterstitialAd(param);
         if (ad != null) {
             console.log('创建插屏成功');

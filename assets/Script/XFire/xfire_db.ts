@@ -12,13 +12,14 @@
 /**
  * 桌面浏览器
  */
+import xfire from './xfire';
 import XFireApp, { AdCfg, BannerAd, LaunchOptions, LoginError, LoginResult, OrderInfo, SdkCfg, SystemInfo } from './xfire_base';
 const KEY_USERNAME = '__browser_login_username';
 const KEY_PASSWORD = '__browser_login_password';
 
-export default class XFireAppDB extends XFireApp{
+export default class XFireAppDB extends XFireApp {
     private pageLogin: cc.Node = null;
-    private nativePayNotifier: {success?: (orderInfo: OrderInfo) => void; cancel?: (orderInfo: OrderInfo) => void; fail?: (orderInfo: OrderInfo, failMsg: string) => void} = null;
+    private nativePayNotifier: { success?: (orderInfo: OrderInfo) => void; cancel?: (orderInfo: OrderInfo) => void; fail?: (orderInfo: OrderInfo, failMsg: string) => void } = null;
 
     public constructor() {
         super();
@@ -71,7 +72,7 @@ export default class XFireAppDB extends XFireApp{
         return true;
     }
 
-    public supportClipboard () {
+    public supportClipboard() {
         return true;
     }
 
@@ -79,7 +80,7 @@ export default class XFireAppDB extends XFireApp{
      * 将字符串复制到剪贴板，成功true，失败false
      * @param content 拷贝内容
      */
-    public setClipboardData (content: string): Promise<boolean> {
+    public setClipboardData(content: string): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
             try {
                 window.navigator.clipboard.writeText(content)
@@ -92,7 +93,7 @@ export default class XFireAppDB extends XFireApp{
         });
     }
 
-    public getClipboardData (): Promise<string> {
+    public getClipboardData(): Promise<string> {
         return new Promise<string>((resolve) => {
             try {
                 window.navigator.clipboard.readText()
@@ -118,7 +119,7 @@ export default class XFireAppDB extends XFireApp{
         success?: (res: LoginResult) => void;
         fail?: (err: LoginError) => void;
         complete?: () => void;
-    }= {}): void {
+    } = {}): void {
         if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
@@ -152,13 +153,13 @@ export default class XFireAppDB extends XFireApp{
             if (ret) {
                 // 模拟成功
                 if (this.nativePayNotifier && this.nativePayNotifier.success) {
-                    this.nativePayNotifier.success({payPoint, orderid, goodsName: cfg.goods, count: cfg.count, price: cfg.price});
+                    this.nativePayNotifier.success({ payPoint, orderid, goodsName: cfg.goods, count: cfg.count, price: cfg.price });
                 }
             }
             else {
                 // 模拟失败
                 if (this.nativePayNotifier && this.nativePayNotifier.fail) {
-                    this.nativePayNotifier.fail({payPoint, orderid, goodsName: cfg.goods, count: cfg.count, price: cfg.price}, '计费失败');
+                    this.nativePayNotifier.fail({ payPoint, orderid, goodsName: cfg.goods, count: cfg.count, price: cfg.price }, '计费失败');
                 }
             }
         }, 2000);
@@ -328,14 +329,14 @@ export default class XFireAppDB extends XFireApp{
         setTimeout(() => {
             if (username == null || password == null || username.length < 4 || password.length < 4) {
                 if (params.fail) {
-                    params.fail({msg: '未输入合法账号密码，不要短于4字符'});
+                    params.fail({ msg: '未输入合法账号密码，不要短于4字符' });
                 }
             }
             else {
                 if (params.success) {
                     cc.sys.localStorage.setItem(KEY_USERNAME, username);
                     cc.sys.localStorage.setItem(KEY_PASSWORD, password);
-                    params.success({plat: this.plat, username, password});
+                    params.success({ plat: this.plat, username, password });
                     if (this.pageLogin) {
                         this.pageLogin.removeFromParent();
                         this.pageLogin = null;
@@ -350,11 +351,11 @@ export default class XFireAppDB extends XFireApp{
 
 }
 
-class BannerAdDBSim extends BannerAd{
+class BannerAdDBSim extends BannerAd {
     // 需要展示的位置与宽高
-    private movetoBox: {left: number; top: number; width: number; height: number} = null;
+    private movetoBox: { left: number; top: number; width: number; height: number } = null;
     private scaleToPlat = 1;
-    private realSize = {width: 0, height: 0};   // 平台单位
+    private realSize = { width: 0, height: 0 };   // 平台单位
 
     public constructor(sdkConfig: SdkCfg, config: AdCfg) {
         super(sdkConfig, config);
@@ -362,8 +363,8 @@ class BannerAdDBSim extends BannerAd{
             return;
         }
         let screenSize = cc.view.getVisibleSize();
-        let cfgStyle = config.style || {left: 0, bottom: 0, width: screenSize.width, height: screenSize.width / 2.917};
-        this.movetoBox = {left: cfgStyle.left, top: screenSize.height - cfgStyle.bottom - cfgStyle.height, width: cfgStyle.width, height: cfgStyle.height};
+        let cfgStyle = config.style || { left: 0, bottom: 0, width: screenSize.width, height: screenSize.width / 2.917 };
+        this.movetoBox = { left: cfgStyle.left, top: screenSize.height - cfgStyle.bottom - cfgStyle.height, width: cfgStyle.width, height: cfgStyle.height };
         let sysInfo = xfire.getSystemInfoSync();
         this.scaleToPlat = sysInfo.screenWidth / screenSize.width;
         this.realSize.width = this.movetoBox.width * this.scaleToPlat;
@@ -379,12 +380,12 @@ class BannerAdDBSim extends BannerAd{
             return;
         }
         // 定义style转换接口
-        let genBannerAdStyle = (style: {left?: number; top?: number; width?: number; height?: number}): any => {
-            return {left: style.left * this.scaleToPlat, top: style.top * this.scaleToPlat, width: style.width * this.scaleToPlat, height: style.height * this.scaleToPlat};
+        let genBannerAdStyle = (style: { left?: number; top?: number; width?: number; height?: number }): any => {
+            return { left: style.left * this.scaleToPlat, top: style.top * this.scaleToPlat, width: style.width * this.scaleToPlat, height: style.height * this.scaleToPlat };
         };
 
         let style = genBannerAdStyle(this.movetoBox);
-        let banner = createBannerAd({adUnitId: this.config.id, style});
+        let banner = createBannerAd({ adUnitId: this.config.id, style });
         this.platObj = banner;
         if (banner == null) {
             console.log('创建banner失败');
@@ -398,7 +399,7 @@ class BannerAdDBSim extends BannerAd{
                     this.show();
                 }
             });
-            banner.onResize((res: {width: number; height: number}) => {
+            banner.onResize((res: { width: number; height: number }) => {
                 console.log('banner onResize：' + this.config.name + ' size：' + JSON.stringify(res));
                 this.realSize.width = res.width;
                 this.realSize.height = res.height;
@@ -418,7 +419,7 @@ class BannerAdDBSim extends BannerAd{
                 else if (gheight < dstHeight) {
                     let dstTop = (this.movetoBox.top + this.movetoBox.height) * this.scaleToPlat - this.realSize.height;
                     banner.resetStyle({
-                        left:  (cc.view.getVisibleSize().width * this.scaleToPlat - this.realSize.width) / 2,
+                        left: (cc.view.getVisibleSize().width * this.scaleToPlat - this.realSize.width) / 2,
                         top: dstTop
                     });
                 }
@@ -426,18 +427,18 @@ class BannerAdDBSim extends BannerAd{
         }
     }
 
-    public get size(): {width: number; height: number} {
+    public get size(): { width: number; height: number } {
         if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
 
         if (this.platObj == null) {
-            return {width: 0, height: 0};
+            return { width: 0, height: 0 };
         }
         else {
             let width = this.realSize.width / this.scaleToPlat;
             let height = this.realSize.height / this.scaleToPlat;
-            return {width, height};
+            return { width, height };
         }
     }
 
@@ -455,7 +456,7 @@ class BannerAdDBSim extends BannerAd{
         }
         if (this.platObj != null) {
             let dstTop = (this.movetoBox.top + this.movetoBox.height) * this.scaleToPlat - this.realSize.height;
-            this.platObj.resetStyle({top: dstTop});
+            this.platObj.resetStyle({ top: dstTop });
         }
     }
 
@@ -464,7 +465,7 @@ class BannerAdDBSim extends BannerAd{
             return;
         }
         let sizeChanged = this.movetoBox.width !== width || this.movetoBox.height !== height;
-        this.movetoBox = {left, top, width, height};
+        this.movetoBox = { left, top, width, height };
         if (this.platObj != null) {
             let dstLeft = left * this.scaleToPlat;
             let dstTop = (top + height) * this.scaleToPlat - this.realSize.height;
@@ -478,7 +479,7 @@ class BannerAdDBSim extends BannerAd{
             }
             let dstWidth = width * this.scaleToPlat;
             let dstHeight = height * this.scaleToPlat;
-            let style: {left?: number; top?: number; width?: number; height?: number} = {};
+            let style: { left?: number; top?: number; width?: number; height?: number } = {};
             style.left = dstLeft + (dstWidth - this.realSize.width) / 2;
             style.top = dstTop;
             if (sizeChanged) {
@@ -511,16 +512,16 @@ class BannerAdDBSim extends BannerAd{
     }
 }
 
-class SimBannerAd{
+class SimBannerAd {
     private game: HTMLElement;
     private banner: HTMLDivElement;
     private img: HTMLImageElement;
-    private style: {left?: number; top?: number; width?: number; height?: number} = {};
+    private style: { left?: number; top?: number; width?: number; height?: number } = {};
     private cbOnLoad: () => void;
-    private cbOnResize: (res: {width: number; height: number}) => void;
+    private cbOnResize: (res: { width: number; height: number }) => void;
 
     public constructor(game: HTMLElement, banner: HTMLDivElement, img: HTMLImageElement,
-        style: {left?: number; top?: number; width?: number; height?: number}
+        style: { left?: number; top?: number; width?: number; height?: number }
     ) {
         this.game = game;
         this.banner = banner;
@@ -543,7 +544,7 @@ class SimBannerAd{
         this.cbOnLoad = cb;
     }
 
-    public onResize(cb: (res: {width: number; height: number}) => void) {
+    public onResize(cb: (res: { width: number; height: number }) => void) {
         this.cbOnResize = cb;
     }
 
@@ -559,7 +560,7 @@ class SimBannerAd{
         }
     }
 
-    public resetStyle(style: {left?: number; top?: number; width?: number; height?: number}) {
+    public resetStyle(style: { left?: number; top?: number; width?: number; height?: number }) {
         if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
@@ -587,8 +588,8 @@ class SimBannerAd{
     }
 
     private triggerOnResize(width: number, height: number) {
-        if (this.cbOnResize)     {
-            this.cbOnResize({width, height});
+        if (this.cbOnResize) {
+            this.cbOnResize({ width, height });
         }
     }
 
@@ -619,7 +620,7 @@ class SimBannerAd{
     }
 }
 
-function createBannerAd(params: {adUnitId: string; style?: {left?: number; top?: number; width?: number; height?: number}}): SimBannerAd {
+function createBannerAd(params: { adUnitId: string; style?: { left?: number; top?: number; width?: number; height?: number } }): SimBannerAd {
     if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
         return;
     }
@@ -645,7 +646,7 @@ function createBannerAd(params: {adUnitId: string; style?: {left?: number; top?:
     banner.appendChild(img);
 
     let ret = new SimBannerAd(divGame, banner, img,
-        {left: lStyle.left || 0, top: lStyle.top || 0, width: lStyle.width || gameWidth, height: lStyle.height || 300}
+        { left: lStyle.left || 0, top: lStyle.top || 0, width: lStyle.width || gameWidth, height: lStyle.height || 300 }
     );
 
     img.setAttribute('src', 'http://imgcdn.orbn.top/g/common/img/SampleBanner01.png');

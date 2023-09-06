@@ -5,6 +5,9 @@
 描述:
     可扩展数据统计模块，通过注册来达到扩展目的
 
+文档：
+    ✦友盟：https://developer.umeng.com/docs/147615/detail/270970
+
 与xfire中的analyzer接口区别：
     ✦xfire中的analyzer为个别平台自身的统计接口封装，现已封装为AnalyzerPlat，只要
         注册到Analyzer中即可启用
@@ -40,13 +43,12 @@
 
 *******************************************************************************/
 
-import xfire from '../XFire/xfire';
 import AnalyzerInterface from './Analyzer/AnalyzerInterface';
 
 export default class Analyzer {
     private static analyzers: AnalyzerInterface[] = [];
     /** 模块进入时间 */
-    private static moduleEnterTime: { [key: string]: number } = {};
+    private static moduleEnterTime: {[key: string]: number} = {};
     /** 标记是否已初始化 */
     private static initialized = false;
 

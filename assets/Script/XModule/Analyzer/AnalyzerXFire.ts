@@ -25,7 +25,8 @@ enum XFireInnerEvent {
     ModuleEnter = 'g',
     ModuleEnd = 'h',
     /** 模块计时，玩家持续在某模块时会进行计时，防止意外退出导致未计时 */
-    ModuleTiming = 'i'
+    ModuleTiming = 'i',
+    Online = 'j'
 }
 /** 炫火统计插件 */
 export class AnalyzerXFire extends AnalyzerInterface {
@@ -33,7 +34,14 @@ export class AnalyzerXFire extends AnalyzerInterface {
     private appkey: string;
     private solution: string;
     /** 上次激活时间，单位秒 */
-    private lastShowTime: number;
+    private lastShowTime = 0;
+    /** 上次上报时长时间 */
+    private lastTimeReportTime = 0;
+    /** 是否停止上报，由服务器下发 */
+    private stop = false;
+    /** 定时上报在线时长，防止时长丢失 */
+    private timerHandler: number;
+    private hidden = false;
 
     /**
      * 炫火统计插件
@@ -44,6 +52,7 @@ export class AnalyzerXFire extends AnalyzerInterface {
         super();
         this.appkey = appkey;
         this.solution = solution;
+        this.lastTimeReportTime = xfire.currentTimeMillis / 1000;
     }
 
     /** 给Analyzer用，不要擅自调用 */
@@ -62,10 +71,29 @@ export class AnalyzerXFire extends AnalyzerInterface {
         xfire.onShow((options) => {
             this._sendEvent(XFireInnerEvent.OnShow);
             this.lastShowTime = xfire.currentTimeMillis / 1000;
+            this.lastTimeReportTime = this.lastShowTime;
+            this.hidden = false;
         });
         xfire.onHide(() => {
-            this._sendEvent(XFireInnerEvent.OnHide, null, xfire.currentTimeMillis / 1000 - this.lastShowTime);
+            let curTime = xfire.currentTimeMillis / 1000;
+            let delta = Math.round(curTime - this.lastTimeReportTime);
+            if (delta > 0) {
+                this._sendEvent(XFireInnerEvent.OnHide, undefined, Math.min(delta, 61));
+            }
+            this.lastTimeReportTime = curTime;
+            this.hidden = true;
         });
+        if (!this.timerHandler) {
+            this.timerHandler = setInterval(() => {
+                if (this.hidden) return;
+                let curTime = xfire.currentTimeMillis / 1000;
+                let delta = Math.round(curTime - this.lastTimeReportTime);
+                if (delta > 0) {
+                    this._sendEvent(XFireInnerEvent.Online, undefined, Math.min(delta, 61));
+                }
+                this.lastTimeReportTime = curTime;
+            }, 60 * 1000);
+        }
         // 向服务器发送初始化事件
         this._sendEvent(XFireInnerEvent.Init);
 
@@ -78,11 +106,11 @@ export class AnalyzerXFire extends AnalyzerInterface {
 
     public sendCustomEvent(customEventName: string, eventArg?: string): void {
         // 发送事件
-        this._sendEvent(XFireInnerEvent.CustomEvent, customEventName, null, null, eventArg);
+        this._sendEvent(XFireInnerEvent.CustomEvent, customEventName, undefined, undefined, eventArg);
     }
 
     public stageEnter(stageId: number, userId?: string): void {
-        this._sendEvent(XFireInnerEvent.StageEnter, null, stageId);
+        this._sendEvent(XFireInnerEvent.StageEnter, undefined, stageId);
     }
 
     public stageEnd(stageId: number, succ: boolean, score?: number, userId?: string): void {
@@ -108,10 +136,16 @@ export class AnalyzerXFire extends AnalyzerInterface {
      * @param argInt2 整数参数2
      */
     private _sendEvent(name: string, arg?: string, argInt1?: number, argInt2?: number, argStr2?: string) {
+        if (this.stop) return;
         // 向服务器发送事件
-        let body = {k: this.appkey, u: this.userid, p: xfire.plat, q: xfire.getSubPlat(), c: xfire.getChannel(), l: this.solution, n: name, s: arg, i1: argInt1, i2: argInt2, s2: argStr2};
-        let str = xfire.encrypt(JSON.stringify(body), 'hwmcn' + '923w6k' + 'y5l9p');
-        xfire.httpGetStringWithBody(Host, str);
+        let body = {k: this.appkey, u: this.userid, p: xfire.plat, q: xfire.getSubPlat() || undefined, c: xfire.getChannel() || undefined, l: this.solution || undefined, n: name, s: arg, i1: argInt1, i2: argInt2, s2: argStr2};
+        let str = CC_DEV ? JSON.stringify(body) : xfire.encrypt(JSON.stringify(body), 'hwmcn' + '923w6k' + 'y5l9p');
+        (async () => {
+            let ret = await xfire.httpGetStringWithBody(Host, str);
+            if (ret.content === 'stop') {
+                this.stop = true;
+            }
+        })();
     }
 
     /**

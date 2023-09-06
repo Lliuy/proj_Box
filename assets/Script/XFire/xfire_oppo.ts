@@ -30,6 +30,7 @@
 import SimpleUI from '../XModule/SimpleUI';
 import { SNode } from '../XModule/SimpleUI/SUIData';
 import SUIResLoader from '../XModule/SimpleUI/SUIResLoader';
+import xfire from './xfire';
 import XFireApp, { AdCfg, AppConfig, BannerAd, FeedsAd, InterstitialAd, LoginError, LoginResult, SdkCfg, SystemInfo, VideoAd, XUserInfoWithSignature } from './xfire_base';
 import XFireConfigs from './xfire_config';
 

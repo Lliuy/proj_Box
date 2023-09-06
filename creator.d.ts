@@ -32070,4 +32070,5 @@ declare const CC_RUNTIME: boolean;
 /** Running in the engine's unit test. */
 declare const CC_TEST: boolean;
 /** Running in the WeChat Mini Game. */
-declare const cc.sys.platform === cc.sys.WECHAT_GAME: boolean;
+declare const CC_WECHATGAME: boolean;
+
