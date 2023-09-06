@@ -1,20 +1,11 @@
 /**
  * qq小程序
  * 接口文档地址https://q.qq.com/wiki/develop/game/API/
- * QQ钱包商户平台：
- *      https://qpay.qq.com/buss/wiki/221/1219
- *      红包创建：https://qpay.qq.com/buss/wiki/221/1220
- *      开屏广告申请（2020年11月3日）：https://docs.qq.com/form/page/DSnh5RU1GQWFKaXFW?_w_tencentdocx_form=1#/fill-detail
  * 平台特性：
  *      1.账号必有
  *      2.需要配置域名
  *      3.支持分包，首场景加载工程不可使用分包中内容
  *      4.插屏在游戏启动一定时间内不能弹出，两次插屏有间隔时长限制
- *
- * 开屏广告配置2020年8月13日：https://support.qq.com/products/134621/faqs/71745
- *      ✦使用新版打包插件构建
- *      ✦当前（2020年9月9日）需使用Nightly Build版，stable版本还不支持
- *      ✦发布后在后台建立loading广告位即可，【发布成功后才会出现】
  *
  * 发布方法：
  *      1.发布为微信工程
@@ -25,11 +16,9 @@
  *
  */
 
-import XFireApp, { AdCfg, AppBoxAd, AppConfig, BannerAd, BlockAd, InterstitialAd, LaunchOptions, LoginError, LoginResult, OrderInfo, SdkCfg, ShareInfo, SystemInfo, VideoAd, XFeedbackButton, XUserInfoButton, XUserInfoWithSignature } from './xfire_base';
+import XFireApp, { AdCfg, AppBoxAd, AppConfig, BannerAd, InterstitialAd, LaunchOptions, LoginError, LoginResult, OrderInfo, SdkCfg, ShareInfo, SystemInfo, VideoAd, XUserInfoButton, XUserInfoWithSignature } from './xfire_base';
 import XFireConfigs from './xfire_config';
 
-const CC_VERSION_20 = cc.ENGINE_VERSION.indexOf('2.0.') === 0;
-const CC_VERSION_21 = cc.ENGINE_VERSION.indexOf('2.1.') === 0;
 const ORDER_MARK = '_qq_order_consumed_mark_';
 
 // 这么做是因为模块使用者不一定有微信api的.d.ts文件
@@ -37,7 +26,7 @@ const qqapi: any = (window as any).qq;
 let win: any = window;
 let showOptions: LaunchOptions = null;
 
-if (cc.sys.platform === cc.sys.WECHAT_GAME && win.qq != null && win.tt == null && (CC_VERSION_20 || CC_VERSION_21) && (typeof XH_PLAT === 'undefined' || XH_PLAT === 'qq')) {
+if (cc.sys.platform === cc.sys.WECHAT_GAME && win.qq != null && win.tt == null && (typeof XH_PLAT === 'undefined' || XH_PLAT === 'qq')) {
     let justShown = false;
     let justHidden = false;
     win._inner_onShown = (res) => {
@@ -82,7 +71,7 @@ if (cc.sys.platform === cc.sys.WECHAT_GAME && win.qq != null && win.tt == null &
 
 export default class XFireAppQQ extends XFireApp{
     private static validateNativeUserInfoResult(res: any): XUserInfoWithSignature {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         if (!res || !res.errMsg || !res.rawData) {
@@ -110,13 +99,10 @@ export default class XFireAppQQ extends XFireApp{
     private shareInfo: ShareInfo = null;
     private shareTimestamp = 0;
 
-    /** 加速度监听函数 */
-    private accCb: (res: {x: number; y: number; z: number}) => void = null;
-
     public constructor() {
         super();
         this.plat = this.PLAT_QQ;
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         this.logined = true;
@@ -144,7 +130,7 @@ export default class XFireAppQQ extends XFireApp{
             }
             this.sharing = false;
         });
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || qqapi == null) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || qqapi == null) {
             console.error('XFireAppQQ只可在QQ环境下使用');
         }
 
@@ -167,109 +153,12 @@ export default class XFireAppQQ extends XFireApp{
         qqapi.vibrateLong();
     }
 
-    /** 添加彩签，基础库1.10.0开始支持 */
-    public addColorSign(_params?: {
-        success?: () => void;
-        fail?: () => void;
-        complete?: () => void;
-    }) {
-        let params = _params || {};
-        if (qqapi.addColorSign) {
-            qqapi.addColorSign({
-                success: params.success,
-                fail: params.fail,
-                complete: params.complete
-            });
-        }
-    }
-
-    /** 判断是否已在彩签内，基础库1.16.0开始支持 */
-    public isColorSignExistSync(): boolean {
-        if (qqapi.isColorSignExistSync) {
-            return qqapi.isColorSignExistSync();
-        }
-        return false;
-    }
-
-    /** 当前（2020年10月21日）qq开发者工具多个分包不允许并发加载，会提示找不到game.js，真机没问题 */
-    public loadSubpackages(onProgressUpdate?: (progress: number) => void): Promise<boolean> {
-        let packageCount = (window as any).__xfiresubcount;
-        console.log('分包数量:' + packageCount);
-        return new Promise<boolean>((resolve) => {
-            if (packageCount == null || packageCount === 0) {
-                if (onProgressUpdate != null) {
-                    onProgressUpdate(1);
-                }
-                resolve(true);
-                return;
-            }
-            let tasks = [];
-            let progresses: number[] = [];
-            let succCount = 0;
-            // 初始化一下，防止提前访问带来Nan问题
-            for (let i = 0; i < packageCount; i++) {
-                progresses[i] = 0;
-            }
-            let createTask = (i: number) => {
-                tasks[i] = qqapi.loadSubpackage({
-                    name: `sub${i}`,
-                    success: (res) => {
-                        console.log(`分包sub${i}加载成功`);
-                        succCount++;
-                        progresses[i] = 100;
-                        if (succCount === packageCount) {
-                            if (onProgressUpdate) {
-                                onProgressUpdate(1);
-                            }
-                            resolve(true);
-                            return;
-                        }
-                        else {
-                            createTask(i + 1);
-                        }
-                    },
-                    fail: (res) => {
-                        (async () => {
-                            await xfire.sleep(2);
-                            createTask(i);
-                        })();
-                    }
-                });
-                // res.progress范围0-100
-                tasks[i].onProgressUpdate((res: {progress: number; totalBytesWritten: number; totalBytesExpectedToWrite: number}) => {
-                    let progress = res.progress;
-                    if (progress === 0 && typeof res.totalBytesWritten === 'number' && typeof res.totalBytesExpectedToWrite === 'number' && res.totalBytesExpectedToWrite > 0) {
-                        progress = res.totalBytesWritten * 100 / res.totalBytesExpectedToWrite;
-                    }
-                    progresses[i] = progress;
-                    if (onProgressUpdate) {
-                        let total = 0;
-                        for (let prog of progresses) {
-                            total += prog;
-                        }
-                        // 乘以0.999是为确保100%由成功函数发出 确保进度 逻辑一致性
-                        let prog = total * 0.999 / (packageCount * 100);
-                        if (prog > 0.999) {
-                            prog = 0.999;
-                        }
-                        onProgressUpdate(prog);
-                    }
-                });
-            };
-            createTask(0);
-        });
-    }
-
     public supportLogin(): boolean {
         return true;
     }
 
     public supportUserInfoButton(): boolean {
         return true;
-    }
-
-    public supportFeedbackButton(): boolean {
-        return qqapi.createFeedbackButton != null;
     }
 
     public supportMiniProgramNavigate(): boolean {
@@ -284,7 +173,7 @@ export default class XFireAppQQ extends XFireApp{
         fail?: () => void;
         complete?: () => void;
     }) {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let isName = typeof nameOrParams === 'string';
@@ -330,14 +219,14 @@ export default class XFireAppQQ extends XFireApp{
         authSetting?: {[key: string]: boolean};
         error?: string;
     }> {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         return new Promise<{
             authSetting?: {[key: string]: boolean};
             error?: string;
         }>((resolve) => {
-            if (!cc.sys.platform === cc.sys.WECHAT_GAME) {
+            if (!(cc.sys.platform === cc.sys.WECHAT_GAME)) {
                 return;
             }
             let lParams = params || {};
@@ -347,6 +236,9 @@ export default class XFireAppQQ extends XFireApp{
                     result[this.SCOPE_USERINFO] = res.authSetting[this.SCOPE_USERINFO];
                     result[this.SCOPE_USERLOCATION] = res.authSetting[this.SCOPE_USERLOCATION];
                     result[this.SCOPE_WRITEPHOTOSALBUM] = res.authSetting[this.SCOPE_WRITEPHOTOSALBUM];
+                    result[this.SCOPE_RECORD] = res.authSetting[this.SCOPE_RECORD];
+                    result[this.SCOPE_CAMERA] = res.authSetting[this.SCOPE_CAMERA];
+
                     if (lParams.success) {
                         lParams.success(result);
                     }
@@ -376,14 +268,14 @@ export default class XFireAppQQ extends XFireApp{
         userInfo?: XUserInfoWithSignature;
         error?: string;
     }> {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         return new Promise<{
             userInfo?: XUserInfoWithSignature;
             error?: string;
         }>((resolve) => {
-            if (!cc.sys.platform === cc.sys.WECHAT_GAME) {
+            if (!(cc.sys.platform === cc.sys.WECHAT_GAME)) {
                 return;
             }
             let lParams = params || {};
@@ -412,7 +304,7 @@ export default class XFireAppQQ extends XFireApp{
     }
 
     public createUserInfoButton(spaceNode: cc.Node, left: number, top: number, width: number, height: number,  imagePath: string = null): XUserInfoButton {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let rect = this.rectFromNodeToPlat(spaceNode, left, top, width, height);
@@ -470,64 +362,6 @@ export default class XFireAppQQ extends XFireApp{
         return new XUserInfoButtonQQ(btn);
     }
 
-    public createFeedbackButton(spaceNode: cc.Node, left: number, top: number, width: number, height: number,  imagePath: string = null): XFeedbackButton {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
-            return;
-        }
-        let rect = this.rectFromNodeToPlat(spaceNode, left, top, width, height);
-        let btn = null;
-        class XFeedbackButtonQQ extends XFeedbackButton {
-            public constructor(platObj) {
-                super(platObj);
-            }
-
-            public show(): void {
-                if (this.platObj) {
-                    this.platObj.show();
-                }
-            }
-
-            public hide(): void {
-                if (this.platObj) {
-                    this.platObj.hide();
-                }
-            }
-
-            public destroy(): void {
-                if (this.platObj) {
-                    this.platObj.destroy();
-                }
-            }
-
-            protected nativeOnTap(cb: () => void): void {
-                if (!this.platObj) {
-                    return;
-                }
-                if (this.nativeCallback == null) {
-                    this.nativeCallback = () => {
-                        cb();
-                    };
-                }
-                this.platObj.onTap(this.nativeCallback);
-            }
-
-            protected nativeOffTap(cb: any): void {
-                if (!this.platObj) {
-                    return;
-                }
-                this.platObj.offTap(cb);
-            }
-        }
-        if (imagePath != null) {
-            btn = qqapi.createFeedbackButton({ type: 'image', image: imagePath, style: {left: rect.left, top: rect.top, width: rect.width, height: rect.height}});
-        }
-        else {
-            btn = qqapi.createFeedbackButton({ type: 'text', text: ' ', style: { left: rect.left, top: rect.top, width: rect.width, height: rect.height, backgroundColor: '#00000000'/*rgba*/ } });
-        }
-
-        return new XFeedbackButtonQQ(btn);
-    }
-
     public supportBannerAd(): boolean {
         return true;
     }
@@ -548,10 +382,6 @@ export default class XFireAppQQ extends XFireApp{
         return qqapi && qqapi.createAppBox;
     }
 
-    public supportBlockAd(): boolean {
-        return qqapi && qqapi.createBlockAd;
-    }
-
     public supportPayment(): boolean {
         return qqapi.getSystemInfoSync().platform !== 'ios';
     }
@@ -561,7 +391,7 @@ export default class XFireAppQQ extends XFireApp{
     }
 
     public setClipboardData(content: string): Promise<boolean> {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         return new Promise<boolean> ((resolve) => {
@@ -578,7 +408,7 @@ export default class XFireAppQQ extends XFireApp{
     }
 
     public getClipboardData(): Promise<string> {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         return new Promise<string> ((resolve) => {
@@ -593,44 +423,20 @@ export default class XFireAppQQ extends XFireApp{
         });
     }
 
-    public supportAccelerometer(): boolean {
-        return true;
-    }
-
-    public startAccelerometer() {
-        if (qqapi.startAccelerometer) {
-            // qq此接口不会清理微信内的加速度监听函数
-            qqapi.startAccelerometer({interval: 'game'});
-            if (this.accCb == null) {
-                this.accCb = (res: {x: number; y: number; z: number}) => {
-                    this.dispatchAccelerometerChange(res.x, res.y, res.z, false);
-                };
-                qqapi.onAccelerometerChange(this.accCb);
-            }
-        }
-    }
-
-    public stopAccelerometer() {
-        if (qqapi.stopAccelerometer) {
-            // qq此接口不会清理微信内的加速度监听函数
-            qqapi.stopAccelerometer();
-        }
-    }
-
     public login(param: {
             timeout?: number;                       // 超时时间，单位ms
             success?: (res: LoginResult) => void;
             fail?: (err: LoginError) => void;
             complete?: () => void;
         }= {}): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         qqapi.login({
-            success: (res: {errMsg: string; code?: string}) => {
+            success(res: {errMsg: string; code?: string}) {
                 if (res.code) {
                     if (param.success) {
-                        param.success({plat: xfire.PLAT_QQ, code: res.code});
+                        param.success({plat: this.plat, code: res.code});
                     }
                 }
                 else {
@@ -639,12 +445,12 @@ export default class XFireAppQQ extends XFireApp{
                     }
                 }
             },
-            fail: () => {
+            fail() {
                 if (param.fail) {
                     param.fail({msg: '登录失败'});
                 }
             },
-            complete: () => {
+            complete() {
                 if (param.complete) {
                     param.complete();
                 }
@@ -657,21 +463,21 @@ export default class XFireAppQQ extends XFireApp{
     }
 
     public showShareMenu(): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         qqapi.showShareMenu();
     }
 
     public hideShareMenu(): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         qqapi.hideShareMenu();
     }
 
     public shareAppMessage(shareInfo: ShareInfo): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         if (this.sharing) {
@@ -681,24 +487,30 @@ export default class XFireAppQQ extends XFireApp{
         let info = {
             title: shareInfo.title,
             imageUrl: shareInfo.imageUrl,
-            query: shareInfo.query,
-            success: (res) => {console.log('分享a成功', res); },
-            fail: () => {console.log('分享a失败'); },
-            complete: () => {console.log('分享a完成'); }
+            query: shareInfo.query
         };
         this.sharing = true;
         this.shareInfo = shareInfo;
         this.shareTimestamp = new Date().getTime();
-        // if (qqapi.aldShareAppMessage) {
-        //    qqapi.aldShareAppMessage(info);
-        // }
-        // else {
-        qqapi.shareAppMessage(info);
-        // }
+        if (qqapi.aldShareAppMessage) {
+            qqapi.aldShareAppMessage(info);
+        }
+        else {
+            qqapi.shareAppMessage(info);
+        }
+    }
+
+    public getSharer(): string {
+        let options = qqapi.getLaunchOptionsSync();
+        let xhsid = options?.query?.xhsid;
+        if (xhsid) {
+            this.sharer = xhsid;
+        }
+        return this.sharer;
     }
 
     public onShareAppMessage(cb: () => ShareInfo): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let rcb = () => {
@@ -712,23 +524,23 @@ export default class XFireAppQQ extends XFireApp{
                 query: info.query
             };
         };
-        // if (qqapi.aldOnShareAppMessage) {
-        //    qqapi.aldOnShareAppMessage(rcb);
-        // }
-        // else {
-        qqapi.onShareAppMessage(rcb);
-        // }
+        if (qqapi.aldOnShareAppMessage) {
+            qqapi.aldOnShareAppMessage(rcb);
+        }
+        else {
+            qqapi.onShareAppMessage(rcb);
+        }
     }
 
     public offShareAppMessage(cb: () => ShareInfo): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         qqapi.offShareAppMessage(cb && (cb as any).rcb);
     }
 
     public getLaunchOptionsSync(): LaunchOptions {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let bdOptions = qqapi.getLaunchOptionsSync();
@@ -744,56 +556,49 @@ export default class XFireAppQQ extends XFireApp{
     }
 
     public createBannerAd(sdkConfig: SdkCfg, cfg: AdCfg): BannerAd {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         return new BannerAdQQ(sdkConfig, cfg);
     }
 
     public createVideoAd(sdkConfig: SdkCfg, cfg: AdCfg): VideoAd {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         return new VideoAdQQ(sdkConfig, cfg);
     }
 
     public createAppBoxAd(sdkConfig: SdkCfg, cfg: AdCfg): AppBoxAd {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         return new AppBoxAdQQ(sdkConfig, cfg);
     }
 
     public createInterstitialAd(sdkConfig: SdkCfg, cfg: AdCfg): InterstitialAd {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         return new InterstitialAdQQ(sdkConfig, cfg);
     }
 
-    public createBlockAd(sdkConfig: SdkCfg, cfg: AdCfg): BlockAd {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
-            return;
-        }
-        return new BlockAdQQ(sdkConfig, cfg);
-    }
-
     public exit() {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         qqapi.exitMiniProgram();
     }
 
     public setKeepScreenOn(on: boolean): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         qqapi.setKeepScreenOn({keepScreenOn: on});
     }
 
     public getSystemInfoSync(): SystemInfo {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
 
@@ -810,22 +615,27 @@ export default class XFireAppQQ extends XFireApp{
         };
     }
 
-    protected async nativePay(orderid: string, goodsName: string, count: number, price: number, goodsId: string) {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+    protected async nativePay(payPoint: string, orderid: string) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
-        let orderInfo: OrderInfo = {orderid, goodsName, goodsId, count: count == null ? 1 : count, price};
+        let payPointCfg = this.getPayPointConfig(payPoint);
+        let orderInfo: OrderInfo = {payPoint, orderid, goodsName: payPointCfg.goods, goodsId: payPointCfg.id, count: payPointCfg.count == null ? 1 : payPointCfg.count, price: payPointCfg.price};
         // 先预下单
-        let result = await this.httpGetJsonWithBody('https://minigame.orbn.top/minigame/pay/qqmini/prepay', {
+        let result = await this.httpGetJsonWithBody<{
+            result: 'ok' | 'fail';
+            msg: string;
+            data: {prepayId: string; orderid: string; test?: boolean};
+        }>('https://minigame.orbn.top/minigame/pay/qqmini/prepay', {
             id: this.userid,
             session: this.userSession,
-            goodsId,
-            goodsName,
-            count,
-            price
+            goodsId: payPointCfg.id,
+            goodsName: payPointCfg.goods,
+            count: payPointCfg.count,
+            price: payPointCfg.price
         });
         // 再加一次判断，因为异步问题导致代码压缩光头部的返回不符合预期
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         if (result.error || result.json == null || result.json.result !== 'ok') {
@@ -837,7 +647,7 @@ export default class XFireAppQQ extends XFireApp{
         qqapi.requestMidasPayment({
             prepayId: result.json.data.prepayId,
             setEnv: result.json.data.test ? 1 : 0,
-            starCurrency: Math.floor(price * 10),
+            starCurrency: Math.floor(payPointCfg.price * 10),
             success: (res) => {
                 console.log('pay succ:' + xfire.currentTimeMillis);
                 this.consumeGoods(orderInfo.orderid, orderInfo);
@@ -885,7 +695,7 @@ export default class XFireAppQQ extends XFireApp{
     }
 
     protected nativeOnShow(cb: (options?: LaunchOptions) => void): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         cc.game.on(cc.game.EVENT_SHOW, () => {
@@ -899,7 +709,7 @@ export default class XFireAppQQ extends XFireApp{
      * 启动支付监视器，处理未消耗物品
      */
     private startPayMonitor() {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let goodsListFetched = false;
@@ -912,7 +722,11 @@ export default class XFireAppQQ extends XFireApp{
                 if (goodsListFetched) {
                     continue;
                 }
-                let ret = await this.httpGetJsonWithBody('https://minigame.orbn.top/minigame/pay/qqmini/getMyGoods', {
+                let ret = await this.httpGetJsonWithBody<{
+                    result: 'ok' | 'fail';
+                    msg: string;
+                    data: {goodsList: {goods: string; count: number; orderid: string}[]};
+                }>('https://minigame.orbn.top/minigame/pay/qqmini/getMyGoods', {
                     id: this.userid,
                     session: this.userSession
                 });
@@ -928,7 +742,7 @@ export default class XFireAppQQ extends XFireApp{
     }
 
     private async consumeGoods(orderid: string, orderInfo?: OrderInfo) {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         if (!this.payNotifier || !this.payNotifier.success) {
@@ -941,7 +755,11 @@ export default class XFireAppQQ extends XFireApp{
             this.markOrderConsumed(orderid);
         }
         // 抹去服务器记录
-        let ret = await this.httpGetJsonWithBody('https://minigame.orbn.top/minigame/pay/qqmini/consumeGoods', {
+        let ret = await this.httpGetJsonWithBody<{
+            result: 'ok' | 'fail';
+            msg: string;
+            data: OrderInfo;
+        }>('https://minigame.orbn.top/minigame/pay/qqmini/consumeGoods', {
             id: this.userid,
             session: this.userSession,
             orderid
@@ -958,7 +776,7 @@ export default class XFireAppQQ extends XFireApp{
     }
 
     private markOrderConsumed(orderid: string): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let key = ORDER_MARK + orderid;
@@ -966,7 +784,7 @@ export default class XFireAppQQ extends XFireApp{
     }
 
     private isOrderConsumed(orderid: string): boolean {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let key = ORDER_MARK + orderid;
@@ -982,7 +800,7 @@ class BannerAdQQ extends BannerAd{
 
     public constructor(sdkConfig: SdkCfg, config: AdCfg) {
         super(sdkConfig, config);
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let screenSize = cc.view.getVisibleSize();
@@ -995,11 +813,11 @@ class BannerAdQQ extends BannerAd{
     }
 
     public supportAutoRefresh() {
-        return false;
+        return true;
     }
 
     public load(): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         // 定义相关接口
@@ -1008,9 +826,8 @@ class BannerAdQQ extends BannerAd{
         };
 
         let style = genBannerAdStyle(this.movetoBox);
-        // 因为目前（2020年8月17日）qq不支持平台自行刷新，展示屏蔽adIntervals参数
         let adIntervals = (this.config.duration || 30);
-        let param = {adUnitId: this.config.id, /*adIntervals: adIntervals < 30 ? 30 : adIntervals,*/ style};
+        let param = {adUnitId: this.config.id, adIntervals: adIntervals < 30 ? 30 : adIntervals, style};
         let banner = qqapi.createBannerAd(param);
         this.platObj = banner;
         if (banner == null) {
@@ -1030,7 +847,7 @@ class BannerAdQQ extends BannerAd{
                 this.enable = false;
             });
             banner.onResize((res: any) => {
-                // console.log('banner onResize：' + this.config.name + ' size：' + JSON.stringify(res));
+                console.log('banner onResize：' + this.config.name + ' size：' + JSON.stringify(res));
                 this.realSize.width = res.width;
                 this.realSize.height = res.height;
                 let dstHeight = this.movetoBox.height;
@@ -1038,29 +855,16 @@ class BannerAdQQ extends BannerAd{
                 // 广告实际高度过高 调整宽度 使高度自动调整到预期
                 if (gheight > dstHeight) {
                     banner.style.width = this.realSize.width = res.width * dstHeight / gheight;
+                    banner.style.left = (cc.view.getVisibleSize().width * this.scaleToPlat - this.realSize.width) / 2;
                 }
                 // 广告实际高度偏小 如果alignToBottom则往下移动点
                 else if (gheight < dstHeight) {
                     let dstTop = (this.movetoBox.top + this.movetoBox.height) * this.scaleToPlat - this.realSize.height;
                     banner.style.top = dstTop;
+                    banner.style.left = (cc.view.getVisibleSize().width * this.scaleToPlat - this.realSize.width) / 2;
                 }
-                banner.style.left = this.movetoBox.left * this.scaleToPlat + (this.movetoBox.width * this.scaleToPlat - this.realSize.width) / 2;
             });
         }
-    }
-
-    public reload(): void {
-        // 当前（2020年10月10日）ios下刷新banner会出现banner消失的问题
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ || qqapi.getSystemInfoSync().platform === 'ios') {
-            return;
-        }
-        super.reload();
-        if (this.platObj == null) {
-            return;
-        }
-        this.destroy();
-        this.load();
-        this.show();
     }
 
     public get size(): {width: number; height: number} {
@@ -1075,7 +879,7 @@ class BannerAdQQ extends BannerAd{
     }
 
     public moveTo(bottom: number): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let lBottom = bottom;
@@ -1093,7 +897,7 @@ class BannerAdQQ extends BannerAd{
     }
 
     public moveToEx(left: number, top: number, width: number, height: number): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let sizeChanged = this.movetoBox.width !== width || this.movetoBox.height !== height;
@@ -1122,7 +926,7 @@ class BannerAdQQ extends BannerAd{
     }
 
     public destroy(): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         if (this.platObj == null) {
@@ -1150,7 +954,7 @@ class VideoAdQQ extends VideoAd{
     private playCb: (end: boolean) => void = null;
 
     public load(): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let param = {adUnitId: this.config.id};
@@ -1176,7 +980,7 @@ class VideoAdQQ extends VideoAd{
     }
 
     protected nativePlay(cb: (end: boolean) => void): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         this.playCb = cb;
@@ -1213,7 +1017,7 @@ class VideoAdQQ extends VideoAd{
 
 class AppBoxAdQQ extends AppBoxAd{
     public load(): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let param = {adUnitId: this.config.id};
@@ -1247,7 +1051,7 @@ class AppBoxAdQQ extends AppBoxAd{
 
 class InterstitialAdQQ extends InterstitialAd {
     public load(): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         let param = {adUnitId: this.config.id};
@@ -1278,7 +1082,7 @@ class InterstitialAdQQ extends InterstitialAd {
     }
 
     protected nativeShow(): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
+        if (!(cc.sys.platform === cc.sys.WECHAT_GAME) || xfire.plat !== xfire.PLAT_QQ) {
             return;
         }
         if (this.platObj != null) {
@@ -1288,92 +1092,6 @@ class InterstitialAdQQ extends InterstitialAd {
                 }).catch((err) => {
                     console.log(err);
                 });
-        }
-    }
-}
-
-class BlockAdQQ extends BlockAd {
-    private left: number = null;
-    private top: number = null;
-    public load(): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
-            return;
-        }
-        let style = xfire.copy(this.config.style);
-        if (this.left != null) {
-            style.left = this.left;
-            style.top = this.top;
-        }
-        else {
-            this.left = style.left || 0;
-            this.top = style.top || 0;
-        }
-        let scaleToPlat = xfire.getSystemInfoSync().screenWidth / cc.winSize.width;
-        let param = {adUnitId: this.config.id, style: {left: style.left * scaleToPlat, top: style.top * scaleToPlat}, size: style.size || 1, orientation: style.orientation || 'landscape'};
-        let ad = qqapi.createBlockAd(param);
-        if (ad != null) {
-            console.log('创建积木广告成功');
-            this.platObj = ad;
-            ad.onError((err: any) => {
-                console.error('积木广告加载错误：' + this.config.name + ' 错误：' + JSON.stringify(err));
-                this.enable = false;
-            });
-            ad.onLoad(() => {
-                console.log('积木广告加载成功：' + this.config.name);
-                this.enable = true;
-                if (this.toShow) {
-                    this.show();
-                }
-            });
-            ad.onResize((res: {width: number; height: number}) => {
-                // console.log(JSON.stringify(res));
-            });
-        }
-        else {
-            this.platObj = null;
-            this.enable = false;
-        }
-    }
-
-    public destroy(): void {
-    }
-
-    public update(dt: number, idleTime: number): void {
-    }
-
-    public moveTo(left: number, top: number): void {
-        this.left = left;
-        this.top = top;
-        if (this.platObj && this.platObj.style) {
-            let scaleToPlat = xfire.getSystemInfoSync().screenWidth / cc.winSize.width;
-            this.platObj.style.left = scaleToPlat * left;
-            this.platObj.style.top = scaleToPlat * top;
-        }
-    }
-
-    protected nativeShow(): void {
-        if (!cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_QQ) {
-            return;
-        }
-        if (this.platObj != null) {
-            this.platObj.show()
-                .then(() => {
-                }).catch((err) => {
-                    console.log(err);
-                });
-        }
-    }
-
-    protected nativeHide(): void {
-        if (this.platObj != null) {
-            if (this.platObj.hide != null) {
-                this.platObj.hide();
-            }
-            else {
-                this.platObj.destroy();
-                this.enable = false;
-                this.load();
-            }
         }
     }
 }

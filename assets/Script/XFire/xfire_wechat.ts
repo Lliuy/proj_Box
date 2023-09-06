@@ -21,7 +21,6 @@ PC端平台特性：
     1.发布为微信工程
 *******************************************************************************/
 
-import xfire from './xfire';
 import XFireApp, { AdCfg, BannerAd, GridAd, InterstitialAd, LaunchOptions, LoginError, LoginResult, OrderInfo, SdkCfg, ShareInfo, SystemInfo, VideoAd, XFeedbackButton, XGameClubButton, XUserInfoButton, XUserInfoWithSignature } from './xfire_base';
 import XFireConfigs from './xfire_config';
 
@@ -475,7 +474,7 @@ export default class XFireAppWechat extends XFireApp {
     }
 
     public supportPayment(): boolean {
-        let { platform, SDKVersion } = wxapi.getSystemInfoSync();
+        let {platform, SDKVersion} = wxapi.getSystemInfoSync();
         /** 安卓，或者ios，2.0.3是客服消息接口支持版本，ios下通过客服消息曲线实现支付 */
         return platform === 'android' || (platform === 'ios' && this.compareVersion(SDKVersion, '2.0.3') >= 0);
     }
@@ -894,7 +893,7 @@ export default class XFireAppWechat extends XFireApp {
         else if (platform === 'ios') {
             // ios通过客服窗口跳转公众号支付链接来支付
             // 打开客服，并给用户一个小程序页面供快捷发送，在其中夹入订单号
-            let info = { o: orderInfo.orderid };
+            let info = {o: orderInfo.orderid};
             let path = xfire.base64Encode(JSON.stringify(info));
             wxapi.openCustomerServiceConversation({
                 showMessageCard: true,

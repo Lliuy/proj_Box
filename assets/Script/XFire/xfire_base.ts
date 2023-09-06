@@ -6,7 +6,6 @@
     xfire基类
 *******************************************************************************/
 
-import xfire from './xfire';
 import XFireConfigs from './xfire_config';
 
 const LAYER_MONITOR_NAME = 'xfire监听层';
@@ -30,7 +29,7 @@ let cacheResourceSpriteAtlas: { [key: string]: cc.SpriteAtlas } = {};
 
 export default class XFireApp {
     private static instance: XFireApp = null;
-    public static getInstance(): XFireApp {
+    public static getInstance (): XFireApp {
         return XFireApp.instance;
     }
 
@@ -73,10 +72,10 @@ export default class XFireApp {
     public appConfig: AppConfig = null;
     public advertisements: { [key: string]: Ad } = {};
     /** 本次游戏启动后的游戏时间，单位：秒 */
-    public get gameTime(): number {
+    public get gameTime (): number {
         return this._gameTime;
     }
-    public get idleTime(): number {
+    public get idleTime (): number {
         return this._gameTime - this.lastTouchTimestamp;
     }
     public eventCenter: cc.EventTarget = new cc.EventTarget();
@@ -115,7 +114,7 @@ export default class XFireApp {
     private drawRecordWriteIndex = 0;
     // 游戏时间
     private _gameTime = 0;
-    public constructor() {
+    public constructor () {
         XFireApp.instance = this;
         (window as any).xfire = this;
         // 监听层处理
@@ -150,22 +149,22 @@ export default class XFireApp {
     /**
      * 子平台，安卓返回sdk名，微信、字节小游戏可能是ios、android、windows、mac、devtools， 其他返回空
      */
-    public getSubPlat(): string {
+    public getSubPlat (): string {
         return '';
     }
 
     /**
      * 渠道，安卓返回渠道名，字节可能返回宿主app名称，其他默认空字符串
      */
-    public getChannel(): string {
+    public getChannel (): string {
         return '';
     }
 
-    public getAdSdkName(): string {
+    public getAdSdkName (): string {
         return '';
     }
 
-    public supportExitCheck(): boolean {
+    public supportExitCheck (): boolean {
         return false;
     }
 
@@ -175,7 +174,7 @@ export default class XFireApp {
      * @param onCancel 取消回调
      * @param onConfirm 确认退出，不一定收到，可能直接杀进程退出游戏了
      */
-    public exitCheck(onCancel: () => void, onConfirm: () => void) {
+    public exitCheck (onCancel: () => void, onConfirm: () => void) {
         setTimeout(() => {
             if (onCancel) {
                 onCancel();
@@ -186,21 +185,21 @@ export default class XFireApp {
     /**
      * 判断是否支持振动
      */
-    public supportVibrate(): boolean {
+    public supportVibrate (): boolean {
         return false;
     }
 
     /**
      * 短振动，平台不同振动时间略有差异
      */
-    public vibrateShort() {
+    public vibrateShort () {
 
     }
 
     /**
      * 长振动，平台不同振动时间略有差异
      */
-    public vibrateLong() {
+    public vibrateLong () {
 
     }
 
@@ -220,7 +219,7 @@ export default class XFireApp {
      * }
      * 这里没有更新ui进度，实际使用需呈现进度给用户
      */
-    public loadSubpackages(packages: string[], onProgressUpdate?: (progress: number) => void): Promise<boolean> {
+    public loadSubpackages (packages: string[], onProgressUpdate?: (progress: number) => void): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
             if (onProgressUpdate != null) {
                 onProgressUpdate(1);
@@ -232,14 +231,14 @@ export default class XFireApp {
     /**
      * 获取当前时间戳，单位：毫秒
      */
-    public get currentTimeMillis(): number {
+    public get currentTimeMillis (): number {
         // 使用Date.now性能更优秀点，保留另一种方式做参考。
         // return new Date().getTime();
         return Date.now();
     }
 
     /** 获得实时fps，等于最近1秒钟游戏画面实际刷新次数 */
-    public get fps(): number {
+    public get fps (): number {
         let records = this.drawRecordsForFPS;
         if (records.length < 120) return cc.game.getFrameRate();
         let count = 0;
@@ -259,7 +258,7 @@ export default class XFireApp {
     /**
      * 获取当前时区
      */
-    public get currentTimeZone(): TimeZone {
+    public get currentTimeZone (): TimeZone {
         return -(new Date().getTimezoneOffset()) / 60;
     }
 
@@ -273,7 +272,7 @@ export default class XFireApp {
      * @param end 结束时间戳
      * @param zone 时区
      */
-    public getDateDiff(start: number | Date, end: number | Date, zone?: TimeZone) {
+    public getDateDiff (start: number | Date, end: number | Date, zone?: TimeZone) {
         let tsStart = (typeof start === 'number') ? start as number : (start as Date).getTime();
         let tsEnd = (typeof end === 'number') ? end as number : (end as Date).getTime();
 
@@ -292,7 +291,7 @@ export default class XFireApp {
      * @param timestamp 时间戳
      * @param zone 时区
      */
-    public getNormalDate(timestamp: number, zone?: TimeZone): NormalDate {
+    public getNormalDate (timestamp: number, zone?: TimeZone): NormalDate {
         let now = new Date();
         let lZone = zone || (-now.getTimezoneOffset() / 60);
         now = new Date(timestamp + 3600000 * lZone);
@@ -334,7 +333,7 @@ export default class XFireApp {
      * 判断是否支持放置快捷方式到用户桌面。
      * 有些小游戏平台在安卓手机上支持在用户桌面放置快捷方式。
      */
-    public supportShortcut(): boolean {
+    public supportShortcut (): boolean {
         return false;
     }
 
@@ -342,7 +341,7 @@ export default class XFireApp {
      * 返回是否安装成功
      * promise没有返回错误信息？考虑非关键接口简洁性
      */
-    public installShortcut(): Promise<boolean> {
+    public installShortcut (): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
             resolve(false);
         });
@@ -352,7 +351,7 @@ export default class XFireApp {
      * 返回是否已经安装快捷方式。
      * promise没有返回错误信息？考虑非关键接口简洁性
      */
-    public hasShortcutInstalled(): Promise<boolean> {
+    public hasShortcutInstalled (): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
             resolve(false);
         });
@@ -361,7 +360,7 @@ export default class XFireApp {
     /**
      * 判断平台是否支持跳转其他小程序。
      */
-    public supportMiniProgramNavigate(): boolean {
+    public supportMiniProgramNavigate (): boolean {
         return false;
     }
 
@@ -369,7 +368,7 @@ export default class XFireApp {
      * 判断是否配置有指定小程序的跳转信息。
      * @param name 小程序名
      */
-    public isNavigateAppEnabled(name: string): boolean {
+    public isNavigateAppEnabled (name: string): boolean {
         let app = this.getNavigateAppConfig(name);
         return app != null && app.enable;
     }
@@ -378,7 +377,7 @@ export default class XFireApp {
      * 跳转到其他小程序。
      * @param nameOrParams 小程序名或更详细的参数
      */
-    public navigateToMiniProgram(nameOrParams: string | {
+    public navigateToMiniProgram (nameOrParams: string | {
         name: string;
         path?: string;
         extraData?: any;
@@ -402,7 +401,7 @@ export default class XFireApp {
      * 获取配置文件中配置的当前小程序跳转列表。
      * @param justEnabled 只返回标记为enabled小程序。
      */
-    public getNavigateAppNameList(justEnabled = true): string[] {
+    public getNavigateAppNameList (justEnabled = true): string[] {
         let ret: string[] = [];
         let sdkConfig = this.getSdkConfig();
         if (sdkConfig == null || sdkConfig.navigateApps == null) {
@@ -418,7 +417,7 @@ export default class XFireApp {
         return ret;
     }
 
-    public getNavigateAppCustomData(name: string): { [key: string]: any } {
+    public getNavigateAppCustomData (name: string): { [key: string]: any } {
         let app = this.getNavigateAppConfig(name);
         if (app == null) {
             return {};
@@ -434,7 +433,7 @@ export default class XFireApp {
     /**
      * 判断平台是否支持创建用户授权按钮
      */
-    public supportUserInfoButton(): boolean {
+    public supportUserInfoButton (): boolean {
         return false;
     }
 
@@ -447,7 +446,7 @@ export default class XFireApp {
      * @param height 高，单位：游戏像素
      * @param imagePath 为空则创建透明按钮
      */
-    public createUserInfoButton(spaceNode: cc.Node, left: number, top: number, width: number, height: number, imagePath: string = null): XUserInfoButton {
+    public createUserInfoButton (spaceNode: cc.Node, left: number, top: number, width: number, height: number, imagePath: string = null): XUserInfoButton {
         return null;
     }
 
@@ -460,17 +459,17 @@ export default class XFireApp {
      * @param height 高，单位：游戏像素
      * @param imagePath 为空则创建透明按钮
      */
-    public createGameClubButton(spaceNode: cc.Node, left: number, top: number, width: number, height: number, imagePath: string = null): XGameClubButton {
+    public createGameClubButton (spaceNode: cc.Node, left: number, top: number, width: number, height: number, imagePath: string = null): XGameClubButton {
         return null;
     }
 
     /** 判断平台是否支持创建朋友圈按钮 */
-    public supportGameClubButton(): boolean {
+    public supportGameClubButton (): boolean {
         return false;
     }
 
     /** 判断平台是否支持创建意见反馈按钮，注意与客服按钮的区别 */
-    public supportFeedbackButton(): boolean {
+    public supportFeedbackButton (): boolean {
         return false;
     }
 
@@ -515,67 +514,67 @@ export default class XFireApp {
     }
 
     /** 判断平台是否支持录屏 */
-    public supportRecord(): boolean {
+    public supportRecord (): boolean {
         return false;
     }
 
     /** 判断平台是否支持banner广告 */
-    public supportBannerAd(): boolean {
+    public supportBannerAd (): boolean {
         return true;
     }
 
     /** 判断平台是否支持banner移动 */
-    public supportBannerAdMove(): boolean {
+    public supportBannerAdMove (): boolean {
         return false;
     }
 
     /** 判断平台是否支持激励视频广告 */
-    public supportVideoAd(): boolean {
+    public supportVideoAd (): boolean {
         return true;
     }
 
     /** 判断平台是否支持插屏广告 */
-    public supportInterstitialAd(): boolean {
+    public supportInterstitialAd (): boolean {
         return false;
     }
 
     /** 判断平台是否支持格子广告 */
-    public supportGridAd(): boolean {
+    public supportGridAd (): boolean {
         return false;
     }
 
     /** 判断平台是否支持盒子广告 */
-    public supportAppBoxAd(): boolean {
+    public supportAppBoxAd (): boolean {
         return false;
     }
 
     /** 判断平台是否支持全屏插屏 */
-    public supportFullscreenAd(): boolean {
+    public supportFullscreenAd (): boolean {
         return false;
     }
 
     /** 判断平台是否支持信息流广告 */
-    public supportFeedsAd(): boolean {
+    public supportFeedsAd (): boolean {
         return false;
     }
 
     /** 判断平台是否支持feeds移动 */
-    public supportFeedsAdMove(): boolean {
+    public supportFeedsAdMove (): boolean {
         return false;
     }
 
     /** 判断平台是否支持积木广告 */
-    public supportBlockAd(): boolean {
+    public supportBlockAd (): boolean {
         return false;
     }
 
     /** 玩家已登录时，单机游戏存档是否必须存到服务器 */
-    public mustArchiveOnline(): boolean {
+    public mustArchiveOnline (): boolean {
         return this._mustArchiveOnline;
     }
 
     /** 判断平台是否允许自动登录，有些平台不允许暗戳戳的发起登录，必须用户点击 */
-    public supportAutoLogin(): boolean {
+    public supportAutoLogin (): boolean {
         return this.supportLogin();
     }
 
@@ -585,7 +584,7 @@ export default class XFireApp {
      * @param eventName 事件名称
      * @param eventArg 事件参数
      */
-    public analyzerSendEvent(eventName: string, eventArg: string) {
+    public analyzerSendEvent (eventName: string, eventArg: string) {
     }
 
     /**
@@ -594,7 +593,7 @@ export default class XFireApp {
      * @param stageId 关卡id
      * @param userId 可选，用户id
      */
-    public analyzerStageEnter(stageId: number, userId?: string) {
+    public analyzerStageEnter (stageId: number, userId?: string) {
     }
 
     /**
@@ -605,13 +604,13 @@ export default class XFireApp {
      * @param score 可选，获得分数
      * @param userId 可选，用户id
      */
-    public analyzerStageEnd(stageId: number, succ: boolean, score?: number, userId?: string) {
+    public analyzerStageEnd (stageId: number, succ: boolean, score?: number, userId?: string) {
     }
 
     /**
      * 判断平台是否支持支付
      */
-    public supportPayment(): boolean {
+    public supportPayment (): boolean {
         return false;
     }
 
@@ -622,23 +621,23 @@ export default class XFireApp {
     /**
      * 判断平台是否支持加速度监听
      */
-    public supportAccelerometer(): boolean {
+    public supportAccelerometer (): boolean {
         return false;
     }
 
     /** 开启加速度监听，不会清理已注册加速度监听函数 */
-    public startAccelerometer() {
+    public startAccelerometer () {
     }
 
     /** 关闭加速度监听，不会清理已注册加速度监听函数 */
-    public stopAccelerometer() {
+    public stopAccelerometer () {
     }
 
     /**
      * 监听，回调函数中的参数normlized表示向量是否标准化
      * @param cb 加速度单位为g 9.80665，关于方向：面向手机正面，右x正，上y正，屏幕朝向z正
      */
-    public onAccelerometerChange(cb: (res: { x: number; y: number; z: number; normalized: boolean }) => void) {
+    public onAccelerometerChange (cb: (res: { x: number; y: number; z: number; normalized: boolean }) => void) {
         if (cb != null) {
             this.accCbs.push(cb);
         }
@@ -648,7 +647,7 @@ export default class XFireApp {
      * 取消监听加速度数据
      * @param cb 为空将清除所有监听
      */
-    public offAccelerometerChange(cb: (res: { x: number; y: number; z: number }) => void) {
+    public offAccelerometerChange (cb: (res: { x: number; y: number; z: number }) => void) {
         if (cb == null) {
             this.accCbs = [];
         }
@@ -660,7 +659,7 @@ export default class XFireApp {
         }
     }
 
-    public getPayPointConfig(payPoint: string): PayPointCfg {
+    public getPayPointConfig (payPoint: string): PayPointCfg {
         let sdkcfg = this.getSdkConfig();
         if (sdkcfg == null) {
             console.log('尚未配置sdk：' + this.getAdSdkName());
@@ -682,7 +681,7 @@ export default class XFireApp {
      * 发起支付，结果通过setPayNotifier设定的回调函数接收
      * @param payPoint 配置文件中配置的计费点名称
      */
-    public startPayPoint(payPoint: string): string {
+    public startPayPoint (payPoint: string): string {
         if (!this.supportPayment()) {
             console.error('当前不支持计费');
             return null;
@@ -707,7 +706,7 @@ export default class XFireApp {
      * 全局监听支付结果，进行发放物品
      * @param notifier 支付结果通知器
      */
-    public setPayNotifier(notifier: {
+    public setPayNotifier (notifier: {
         success?: (orderInfo: OrderInfo) => void;
         cancel?: (orderInfo: OrderInfo) => void;
         fail?: (orderInfo: OrderInfo, failMsg: string) => void;
@@ -736,7 +735,7 @@ export default class XFireApp {
      * 获取计费点价格，单位：元
      * @param payPoint 计费点名称
      */
-    public getPayPointPrice(payPoint: string): number {
+    public getPayPointPrice (payPoint: string): number {
         let payPointCfg = this.getPayPointConfig(payPoint);
         if (!payPointCfg) return undefined;
         return payPointCfg.price;
@@ -747,20 +746,20 @@ export default class XFireApp {
      * @param duration 时长，单位秒，如果时间到了会自动停止
      * @param onEnd 自动停止时会触发，如果使用endRecord主动停止并没有再传回调也会触发本回调
      */
-    public startRecord(duration: number, onEnd: (videoPath: string, length: number) => void) {
+    public startRecord (duration: number, onEnd: (videoPath: string, length: number) => void) {
     }
 
     /**
      * 主动停止录屏
      * @param onEnd 结束回调，如果非null，那么startRecord中传的将失效，如果为null则回调startRecord传的onEnd
      */
-    public endRecord(onEnd?: (videoPath: string, length: number) => void) {
+    public endRecord (onEnd?: (videoPath: string, length: number) => void) {
     }
 
     /**
      * 判断是否正在录像
      */
-    public isRecording(): boolean {
+    public isRecording (): boolean {
         return false;
     }
 
@@ -769,7 +768,7 @@ export default class XFireApp {
      * @param videoPath 录像地址
      * @param title 标题
      */
-    public shareVideo(params: string | {
+    public shareVideo (params: string | {
         title?: string;
         videoPath?: string;
         desc?: string;
@@ -794,7 +793,7 @@ export default class XFireApp {
      * 获取平台的一些设置，主要是用户授权信息
      * @param params 回调接口
      */
-    public getSetting(params: {
+    public getSetting (params: {
         success?: (authSetting: { [key: string]: boolean }) => void;
         fail?: (err: any) => void;
         complete?: () => void;
@@ -817,7 +816,7 @@ export default class XFireApp {
         });
     }
 
-    public getUserInfo(params?: {
+    public getUserInfo (params?: {
         success?: (userInfo: XUserInfoWithSignature) => void;
         fail?: (err: string) => void;
         complete?: () => void;
@@ -846,7 +845,7 @@ export default class XFireApp {
      * 为啥不改成自动加载配置？避免异步先后带来的意外，能确保场景加载时配置也加载了。
      * @param config 配置信息
      */
-    public initWithConfigs(config: AppConfig) {
+    public initWithConfigs (config: AppConfig) {
         // 防止反复初始化
         if (this.configsInitialized) {
             return;
@@ -867,7 +866,7 @@ export default class XFireApp {
         }, 0);
     }
 
-    public createJsbCallBack(cb: (params?: any) => void): number {
+    public createJsbCallBack (cb: (params?: any) => void): number {
         let ret = this.uniqueJsbCallBackId++;
         if (cb != null) {
             this.jsbCallBacks[ret] = cb;
@@ -875,7 +874,7 @@ export default class XFireApp {
         return ret;
     }
 
-    public jsbCall(jsbCallBackId: number, params?: any) {
+    public jsbCall (jsbCallBackId: number, params?: any) {
         let cb = this.jsbCallBacks[jsbCallBackId];
         if (cb != null) {
             cb(params);
@@ -887,26 +886,26 @@ export default class XFireApp {
      * 如微信、qq是没有游客的，必然是账号登录的
      * 而百度等是可以游客登录的
      */
-    public allowGuest(): boolean {
+    public allowGuest (): boolean {
         if (!this.supportGuestLogin) {
             return false;
         }
         return this.getSdkConfig() && this.getSdkConfig().allowGuest === true;
     }
 
-    public supportLogin(): boolean {
+    public supportLogin (): boolean {
         return false;
     }
 
     // 判断平台账号是否已经登录、登录过
-    public platLogined(): boolean {
+    public platLogined (): boolean {
         if (this.logined) {
             return true;
         }
         return cc.sys.localStorage.getItem(XFireConfigs.平台账号登录标记) === 'true';
     }
 
-    public login(param: {
+    public login (param: {
         timeout?: number;                       // 超时时间，单位ms
         success?: (res: LoginResult) => void;
         fail?: (err: LoginError) => void;
@@ -921,11 +920,11 @@ export default class XFireApp {
         }
     }
 
-    public getAppConfig(): AppConfig {
+    public getAppConfig (): AppConfig {
         return this.appConfig;
     }
 
-    public getSdkConfig(): SdkCfg {
+    public getSdkConfig (): SdkCfg {
         let name = this.getAdSdkName();
         if (this.appConfig == null) {
             console.log('appConfig未初始化');
@@ -945,7 +944,7 @@ export default class XFireApp {
         return null;
     }
 
-    public onShow(cb: (options?: LaunchOptions) => void) {
+    public onShow (cb: (options?: LaunchOptions) => void) {
         if (this.nativeOnShowListener == null) {
             this.nativeOnShowListener = (options?: LaunchOptions) => {
                 let cbs: ((options?: LaunchOptions) => void)[] = [];
@@ -965,7 +964,7 @@ export default class XFireApp {
         this.onShowListeners.push(cb);
     }
 
-    public offShow(cb: (options?: LaunchOptions) => void) {
+    public offShow (cb: (options?: LaunchOptions) => void) {
         let index = this.onShowListeners.indexOf(cb);
         if (index === -1) {
             console.log('offShow：回调并不存在');
@@ -974,7 +973,7 @@ export default class XFireApp {
         this.onShowListeners.splice(index, 1);
     }
 
-    public onHide(cb: () => void) {
+    public onHide (cb: () => void) {
         if (this.nativeOnHideListener == null) {
             this.nativeOnHideListener = () => {
                 let cbs: (() => void)[] = [];
@@ -998,7 +997,7 @@ export default class XFireApp {
         this.onHideListeners.push(cb);
     }
 
-    public offHide(cb: () => void) {
+    public offHide (cb: () => void) {
         let index = this.onHideListeners.indexOf(cb);
         if (index === -1) {
             console.log('offHide：回调并不存在');
@@ -1007,31 +1006,31 @@ export default class XFireApp {
         this.onHideListeners.splice(index, 1);
     }
 
-    public exit() {
+    public exit () {
         cc.game.end();
     }
 
-    public setKeepScreenOn(on: boolean) {
+    public setKeepScreenOn (on: boolean) {
         let errMsg = 'setKeepScreenOn未实现';
         console.error(errMsg);
     }
 
-    public supportShare(): boolean {
+    public supportShare (): boolean {
         return false;
     }
 
-    public showShareMenu(): void {
+    public showShareMenu (): void {
         let errMsg = 'showShareMenu未实现';
         console.error(errMsg);
     }
 
-    public hideShareMenu(): void {
+    public hideShareMenu (): void {
         let errMsg = 'hideShareMenu未实现';
         console.error(errMsg);
     }
 
     /** 如果需要记录分享者，需在query中指定参数xhsid，如query: 'xhsid=' + xfireol.id */
-    public shareAppMessage(shareInfo: {
+    public shareAppMessage (shareInfo: {
         title?: string;
         imageUrl?: string;
         query?: string;
@@ -1056,64 +1055,64 @@ export default class XFireApp {
     }
 
     /** 获取分享者id，分享链接里必须含参数xhsid */
-    public getSharer(): string {
+    public getSharer (): string {
         return this.sharer;
     }
 
-    public onShareAppMessage(cb: () => ShareInfo): void {
+    public onShareAppMessage (cb: () => ShareInfo): void {
         let errMsg = 'onShareAppMessage未实现';
         console.error(errMsg);
     }
 
-    public offShareAppMessage(cb: () => ShareInfo): void {
+    public offShareAppMessage (cb: () => ShareInfo): void {
         let errMsg = 'offShareAppMessage未实现';
         console.error(errMsg);
     }
 
-    public getLaunchOptionsSync(): LaunchOptions {
+    public getLaunchOptionsSync (): LaunchOptions {
         let errMsg = 'getLaunchOptionsSync未实现';
         console.log(errMsg);
         return;
     }
 
-    public isAdReady(name: string): boolean {
+    public isAdReady (name: string): boolean {
         let ad: Ad = this.getAd(name);
         return ad != null && ad.isReady();
     }
 
-    public createBannerAd(sdkConfig: SdkCfg, cfg: AdCfg): BannerAd {
+    public createBannerAd (sdkConfig: SdkCfg, cfg: AdCfg): BannerAd {
         return null;
     }
 
-    public createVideoAd(sdkConfig: SdkCfg, cfg: AdCfg): VideoAd {
+    public createVideoAd (sdkConfig: SdkCfg, cfg: AdCfg): VideoAd {
         return null;
     }
 
-    public createInterstitialAd(sdkConfig: SdkCfg, cfg: AdCfg): InterstitialAd {
+    public createInterstitialAd (sdkConfig: SdkCfg, cfg: AdCfg): InterstitialAd {
         return null;
     }
 
-    public createGridAd(sdkConfig: SdkCfg, cfg: AdCfg): GridAd {
+    public createGridAd (sdkConfig: SdkCfg, cfg: AdCfg): GridAd {
         return null;
     }
 
-    public createAppBoxAd(sdkConfig: SdkCfg, cfg: AdCfg): AppBoxAd {
+    public createAppBoxAd (sdkConfig: SdkCfg, cfg: AdCfg): AppBoxAd {
         return null;
     }
 
-    public createFullscreenAd(sdkConfig: SdkCfg, cfg: AdCfg): FullscreenAd {
+    public createFullscreenAd (sdkConfig: SdkCfg, cfg: AdCfg): FullscreenAd {
         return null;
     }
 
-    public createFeedsAd(sdkConfig: SdkCfg, cfg: AdCfg): FeedsAd {
+    public createFeedsAd (sdkConfig: SdkCfg, cfg: AdCfg): FeedsAd {
         return null;
     }
 
-    public createBlockAd(sdkConfig: SdkCfg, cfg: AdCfg): BlockAd {
+    public createBlockAd (sdkConfig: SdkCfg, cfg: AdCfg): BlockAd {
         return null;
     }
 
-    public getBannerSize(name: string): { width: number; height: number } {
+    public getBannerSize (name: string): { width: number; height: number } {
         let ad: Ad = this.getAd(name, true, 'banner');
         if (ad == null) {
             console.log('banner广告不存在: ' + name);
@@ -1123,7 +1122,7 @@ export default class XFireApp {
         return banner.size;
     }
 
-    public moveBannerTo(name: string, bottom: number) {
+    public moveBannerTo (name: string, bottom: number) {
         let ad: Ad = this.getAd(name, true, 'banner');
         if (ad == null) {
             console.log('banner广告不存在: ' + name);
@@ -1133,7 +1132,7 @@ export default class XFireApp {
         banner.moveTo(bottom);
     }
 
-    public moveBannerToEx(name: string, left: number, top: number, width: number, height: number) {
+    public moveBannerToEx (name: string, left: number, top: number, width: number, height: number) {
         let ad: Ad = this.getAd(name, true, 'banner');
         if (ad == null) {
             console.log('banner广告不存在: ' + name);
@@ -1143,7 +1142,7 @@ export default class XFireApp {
         banner.moveToEx(left, top, width, height);
     }
 
-    public getGridAdSize(name: string): { width: number; height: number } {
+    public getGridAdSize (name: string): { width: number; height: number } {
         let ad: Ad = this.getAd(name, true, 'grid');
         if (ad == null) {
             console.log('grid广告不存在: ' + name);
@@ -1153,7 +1152,7 @@ export default class XFireApp {
         return gad.size;
     }
 
-    public moveGridAdTo(name: string, bottom: number) {
+    public moveGridAdTo (name: string, bottom: number) {
         let ad: Ad = this.getAd(name, true, 'grid');
         if (ad == null) {
             console.log('grid广告不存在: ' + name);
@@ -1163,7 +1162,7 @@ export default class XFireApp {
         gad.moveTo(bottom);
     }
 
-    public showBanner(name: string): void {
+    public showBanner (name: string): void {
         let ad: Ad = this.getAd(name, true, 'banner');
         if (ad == null) {
             console.log('banner广告不存在: ' + name);
@@ -1177,7 +1176,7 @@ export default class XFireApp {
         }, 0);
     }
 
-    public hideBanner(name: string): void {
+    public hideBanner (name: string): void {
         let ad: Ad = this.getAd(name, true, 'banner');
         if (ad == null) {
             console.log('banner广告不存在: ' + name);
@@ -1191,14 +1190,14 @@ export default class XFireApp {
         }, 0);
     }
 
-    public isVideoAdPlaying(): boolean {
+    public isVideoAdPlaying (): boolean {
         if (!this.videoAdPlaying || (!cc.game.isPaused() && (xfire.currentTimeMillis - this.videoAdLastPlayTime) > 2000)) {
             return false;
         }
         return true;
     }
 
-    public playVideo(name: string, cb: (end: boolean, error: boolean) => void): void {
+    public playVideo (name: string, cb: (end: boolean, error: boolean) => void): void {
         if (this.videoAdPlaying) {
             console.log('有视频广告未播放结束');
             setTimeout(() => {
@@ -1240,7 +1239,7 @@ export default class XFireApp {
         });
     }
 
-    public showInterstitialAd(name: string): void {
+    public showInterstitialAd (name: string): void {
         let ad: Ad = this.getAd(name, true, 'interstitial');
         if (ad == null) {
             console.log('插屏广告不存在: ' + name);
@@ -1254,7 +1253,7 @@ export default class XFireApp {
         iad.show();
     }
 
-    public showGridAd(name: string): void {
+    public showGridAd (name: string): void {
         let ad: Ad = this.getAd(name, true, 'grid');
         if (ad == null) {
             console.log('格子广告不存在：' + name);
@@ -1268,7 +1267,7 @@ export default class XFireApp {
         gad.show();
     }
 
-    public hideGridAd(name: string): void {
+    public hideGridAd (name: string): void {
         let ad: Ad = this.getAd(name, true, 'grid');
         if (ad == null) {
             console.log('格子广告不存在：' + name);
@@ -1278,7 +1277,7 @@ export default class XFireApp {
         gad.hide();
     }
 
-    public showAppBox(name: string): void {
+    public showAppBox (name: string): void {
         let ad: Ad = this.getAd(name, true, 'box');
         if (ad == null) {
             console.log('盒子广告不存在：' + name);
@@ -1288,7 +1287,7 @@ export default class XFireApp {
         box.show();
     }
 
-    public showFullscreenAd(name: string): void {
+    public showFullscreenAd (name: string): void {
         let ad: Ad = this.getAd(name, true, 'fullscreen');
         if (ad == null) {
             console.log('全屏广告不存在: ' + name);
@@ -1305,7 +1304,7 @@ export default class XFireApp {
     /**
      * 显示信息流广告，onclose是可选的关闭回调，如果信息流没有正常显示，这个回调不会触发
      */
-    public showFeedsAd(name: string, onclose?: () => void): void {
+    public showFeedsAd (name: string, onclose?: () => void): void {
         let ad: Ad = this.getAd(name, true, 'feeds');
         if (ad == null) {
             console.log('信息流广告不存在: ' + name);
@@ -1319,7 +1318,7 @@ export default class XFireApp {
         iad.show(onclose);
     }
 
-    public hideFeedsAd(name: string): void {
+    public hideFeedsAd (name: string): void {
         let ad: Ad = this.getAd(name, true, 'feeds');
         if (ad == null) {
             console.log('信息流广告不存在: ' + name);
@@ -1329,7 +1328,7 @@ export default class XFireApp {
         iad.hide();
     }
 
-    public moveFeeds(name: string, left: number, top: number, width: number, height: number) {
+    public moveFeeds (name: string, left: number, top: number, width: number, height: number) {
         if (!this.supportFeedsAdMove()) {
             return;
         }
@@ -1342,7 +1341,7 @@ export default class XFireApp {
         feeds.moveTo(left, top, width, height);
     }
 
-    public showBlockAd(name: string): void {
+    public showBlockAd (name: string): void {
         let ad: Ad = this.getAd(name, true, 'block');
         if (ad == null) {
             console.log('积木广告不存在: ' + name);
@@ -1352,7 +1351,7 @@ export default class XFireApp {
         iad.show();
     }
 
-    public hideBlockAd(name: string): void {
+    public hideBlockAd (name: string): void {
         let ad: Ad = this.getAd(name, true, 'block');
         if (ad == null) {
             console.log('积木广告不存在: ' + name);
@@ -1362,7 +1361,7 @@ export default class XFireApp {
         iad.hide();
     }
 
-    public moveBlock(name: string, left: number, top: number) {
+    public moveBlock (name: string, left: number, top: number) {
         if (!this.supportBlockAd()) {
             return;
         }
@@ -1375,17 +1374,17 @@ export default class XFireApp {
         blockAd.moveTo(left, top);
     }
 
-    public getSystemInfoSync(): SystemInfo {
+    public getSystemInfoSync (): SystemInfo {
         let errMsg = 'getSystemInfoSync未实现';
         console.error(errMsg);
         return;
     }
 
     /** 尝试触发垃圾回收，并不一定立即执行 */
-    public triggerGC() {
+    public triggerGC () {
     }
 
-    public update(dtSecond: number, idleTimeSecond: number) {
+    public update (dtSecond: number, idleTimeSecond: number) {
         // this.idleTime = idleTimeSecond;
     }
 
@@ -1417,7 +1416,7 @@ export default class XFireApp {
      * 设置远程图片缓存大小
      * @param size 缓存大小
      */
-    public setRemoteImageCacheSize(size: number) {
+    public setRemoteImageCacheSize (size: number) {
         REMOTE_IMAGE_CACHE_SIZE = Math.max(XFireConfigs.远程图片缓存大小, size);
     }
 
@@ -1427,7 +1426,7 @@ export default class XFireApp {
      * @param incFix 是否固化在缓存里
      * @example xfire.loadRemoteImage('https://imgcdn.orbn.top/g/001/icon144.jpg');
      */
-    public loadRemoteImage(url: string, fix = false, onLoaded?: (frame: cc.SpriteFrame) => void): cc.SpriteFrame {
+    public loadRemoteImage (url: string, fix = false, onLoaded?: (frame: cc.SpriteFrame) => void): cc.SpriteFrame {
         if (url == null || url === '') {
             return;
         }
@@ -1518,11 +1517,11 @@ export default class XFireApp {
      *      }
      *      // 不可使用sp.Skeleton的setSkeletonData设置，因为这里返回的是资源与setSkeletonData接收的其实是不同的数据类型
      */
-    public loadRemoteSpine(url: string, cb?: (data: sp.SkeletonData) => void): Promise<sp.SkeletonData> {
+    public loadRemoteSpine (url: string, cb?: (data: sp.SkeletonData) => void): Promise<sp.SkeletonData> {
         let urlImage = cc.path.mainFileName(url) + '.png';
         let urlAtlas = cc.path.mainFileName(url) + '.atlas';
         /** 图片加载 */
-        let myLoader = <T>(url: string) => {
+        let myLoader = <T> (url: string) => {
             return new Promise<T>((resolve) => {
                 cc.assetManager.loadRemote(url, (error, asset: T) => {
                     if (error || asset == null) {
@@ -1607,7 +1606,7 @@ export default class XFireApp {
      * @param url 音频url
      * @param cb 回调，可空
      */
-    public loadRemoteAudio(url: string, cb?: (audio: cc.AudioClip) => void): Promise<cc.AudioClip> {
+    public loadRemoteAudio (url: string, cb?: (audio: cc.AudioClip) => void): Promise<cc.AudioClip> {
         let loadFn = (u: string) => {
             return new Promise<cc.AudioClip>((resolve) => {
                 cc.assetManager.loadRemote<cc.AudioClip>(u, (err, audio) => {
@@ -1645,7 +1644,7 @@ export default class XFireApp {
      * @param url 图片地址
      * @param incFix 是否包括固化的图片
      */
-    public releaseRemoteImage(url: string, incFix = false): void {
+    public releaseRemoteImage (url: string, incFix = false): void {
         let img = mapImageCache[url];
         if (!img) {
             return;
@@ -1672,7 +1671,7 @@ export default class XFireApp {
      * @param jsonPath 位于Resource下的json
      * @param _bundle 实际使用的bundle，指定则改为从此bundle加载
      */
-    public loadResourceJson(jsonPath: string, _bundle?: cc.AssetManager.Bundle): Promise<cc.JsonAsset> {
+    public loadResourceJson (jsonPath: string, _bundle?: cc.AssetManager.Bundle): Promise<cc.JsonAsset> {
         return new Promise<cc.JsonAsset>((resolve) => {
             let bundle = _bundle || cc.assetManager.getBundle('Resource') || cc.resources;
             if (!bundle) {
@@ -1695,7 +1694,7 @@ export default class XFireApp {
      * 实例：xfire.loadResourceImage('Image/小程序码256');
      * @param imagePath 位于resources下的图片
      */
-    public loadResourceImage(imagePath: string, _bundle?: cc.AssetManager.Bundle): cc.SpriteFrame {
+    public loadResourceImage (imagePath: string, _bundle?: cc.AssetManager.Bundle): cc.SpriteFrame {
         let frame = cacheResourceImage[imagePath];
         if (frame == null) {
             // 设置一个临时spriteframe尺寸, 加载完成后会覆盖
@@ -1731,8 +1730,8 @@ export default class XFireApp {
     }
 
     /** 从默认Bundle或指定Bundle中加载图片，失败返回null */
-    public loadResourceImageAsync(imagePath: string, _bundle?: cc.AssetManager.Bundle): Promise<cc.SpriteFrame> {
-        return new Promise<cc.SpriteFrame>((resolve) => {
+    public loadResourceImageAsync (imagePath: string, _bundle?: cc.AssetManager.Bundle): Promise<cc.SpriteFrame> {
+        return new Promise<cc.SpriteFrame> ((resolve) => {
             let frame = cacheResourceImage[imagePath];
             if (frame) {
                 resolve(frame);
@@ -1757,7 +1756,7 @@ export default class XFireApp {
         });
     }
 
-    public releaseResourceImage(imagePath: string, _bundle?: cc.AssetManager.Bundle) {
+    public releaseResourceImage (imagePath: string, _bundle?: cc.AssetManager.Bundle) {
         let bundle = _bundle || cc.assetManager.getBundle('Resource') || cc.resources;
         if (!bundle) {
             return;
@@ -1781,7 +1780,7 @@ export default class XFireApp {
      * })();
      * @param plistPath 位于resources目录下的图集文件
      */
-    public loadResourceSpriteAtlas(plistPath: string, cb?: (atlas: cc.SpriteAtlas) => void, _bundle?: cc.AssetManager.Bundle): Promise<cc.SpriteAtlas> {
+    public loadResourceSpriteAtlas (plistPath: string, cb?: (atlas: cc.SpriteAtlas) => void, _bundle?: cc.AssetManager.Bundle): Promise<cc.SpriteAtlas> {
         return new Promise<cc.SpriteAtlas>((resolve) => {
             let bundle = _bundle || cc.assetManager.getBundle('Resource') || cc.resources;
             if (!bundle) {
@@ -1832,7 +1831,7 @@ export default class XFireApp {
      * @param plistUrl 图集plist文件完整url
      * @param cb 回调
      */
-    public loadRemoteSpriteAtlas(plistUrl: string, cb?: (atlas: cc.SpriteAtlas) => void): Promise<cc.SpriteAtlas> {
+    public loadRemoteSpriteAtlas (plistUrl: string, cb?: (atlas: cc.SpriteAtlas) => void): Promise<cc.SpriteAtlas> {
         const BRACE_REGEX = /[\{\}]/g;
         let parseSize = (sizeStr: string) => {
             let str = sizeStr.slice(1, -1);
@@ -1978,7 +1977,7 @@ export default class XFireApp {
     /**
      * repeatCount为0表无限循环
      */
-    public schedule(fn: () => void, timemillis: number, repeatCountIn = 0) {
+    public schedule (fn: () => void, timemillis: number, repeatCountIn = 0) {
         let repeatCount = repeatCountIn;
         let repeat = repeatCount === 0;
         let wrap = () => {
@@ -2001,7 +2000,7 @@ export default class XFireApp {
         wrap();
     }
 
-    public scheduleOnce(fn: () => void, timemillis: number) {
+    public scheduleOnce (fn: () => void, timemillis: number) {
         this.schedule(fn, timemillis, 1);
     }
 
@@ -2010,7 +2009,7 @@ export default class XFireApp {
      * @param timeSecond 单位秒
      * @param driveComponent 驱动组件，不指定将使用setTimeout(游戏进入后台都可能运行)
      */
-    public sleep(timeSecond: number, driveComponent?: cc.Component): Promise<number> {
+    public sleep (timeSecond: number, driveComponent?: cc.Component): Promise<number> {
         return new Promise<number>((resolve) => {
             if (driveComponent) {
                 driveComponent.scheduleOnce(() => {
@@ -2028,7 +2027,7 @@ export default class XFireApp {
     /**
      * 将字符串转为Utf8
      */
-    public stringToUtf8(str: string): Uint8Array {
+    public stringToUtf8 (str: string): Uint8Array {
         const utf8_firstbytemaskval: number[] = [0x0, 0x0, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC];
         let bytes = new Uint8Array(str.length * 4);
         let pDst = 0;
@@ -2092,7 +2091,7 @@ export default class XFireApp {
      * 将utf8转为js字符串
      * @param u8 输入的utf8字符串
      */
-    public utf8ToString(u8: Uint8Array): string {
+    public utf8ToString (u8: Uint8Array): string {
         let result = '';
         if (u8 == undefined) {
             return result;
@@ -2137,7 +2136,7 @@ export default class XFireApp {
     /**
      * 字符串格式化 如：xfire.formatString('科技：{0}，解锁需要钻石：{1}', '护罩强化', 50)
      */
-    public formatString(str: string, ...args: any) {
+    public formatString (str: string, ...args: any) {
         return !!str && str.replace(/\{(\d+)\}/g, (t, r) => {
             return args[r] ? args[r] : t;
         });
@@ -2153,10 +2152,10 @@ export default class XFireApp {
      * 格式化指定时间戳
      * xfire.formatDate('yyyy-MM-dd HH:mm:ss', new Date(1577808000000))
      */
-    public formatDate(str: string, date: Date) {
+    public formatDate (str: string, date: Date) {
         let ret: RegExpExecArray;
         let fmt = str;
-        const opt: { [key: string]: any } = {
+        const opt: {[key: string]: any} = {
             'y+': date.getFullYear().toString(),        // 年
             'M+': (date.getMonth() + 1).toString(),     // 月
             'd+': date.getDate().toString(),            // 日
@@ -2179,7 +2178,7 @@ export default class XFireApp {
     }
 
     /** 对象复制，包括数组 */
-    public copy<T>(obj: T): T {
+    public copy<T> (obj: T): T {
         if (typeof obj !== 'object') {
             return obj;
         }
@@ -2211,7 +2210,7 @@ export default class XFireApp {
     /**
      * 判断平台是否支持剪贴板操作
      */
-    public supportClipboard() {
+    public supportClipboard () {
         return false;
     }
 
@@ -2219,7 +2218,7 @@ export default class XFireApp {
      * 将字符串复制到剪贴板，成功true，失败false
      * @param content 拷贝内容
      */
-    public setClipboardData(content: string): Promise<boolean> {
+    public setClipboardData (content: string): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
             try {
                 window.navigator.clipboard.writeText(content)
@@ -2235,7 +2234,7 @@ export default class XFireApp {
     /**
      * 获取剪贴板内容
      */
-    public getClipboardData(): Promise<string> {
+    public getClipboardData (): Promise<string> {
         return new Promise<string>((resolve) => {
             resolve('');
         });
@@ -2246,7 +2245,7 @@ export default class XFireApp {
      * @param v1 如'1.0.0'
      * @param v2 如'1.0.0'
      */
-    public compareVersion(v1: string, v2: string): number {
+    public compareVersion (v1: string, v2: string): number {
         let lv1 = v1.split('.');
         let lv2 = v2.split('.');
         const len = Math.max(lv1.length, lv2.length);
@@ -2276,7 +2275,7 @@ export default class XFireApp {
      * 获取结点的高度数组
      * 如果未挂入场景，则返回数组的首个值为-1
      */
-    public getNodeOrderArray(_node: cc.Node): number[] {
+    public getNodeOrderArray (_node: cc.Node): number[] {
         let node = _node;
         let ret: number[] = [];
         while (node != null) {
@@ -2296,7 +2295,7 @@ export default class XFireApp {
      * 对比两个结点高度
      * 返回1表node1高于node2，返回0表相同，返回-1表node1低于node2
      */
-    public compareNodeOrder(_node1: cc.Node, _node2: cc.Node): number {
+    public compareNodeOrder (_node1: cc.Node, _node2: cc.Node): number {
         let aryHeight1 = this.getNodeOrderArray(_node1);
         let aryHeight2 = this.getNodeOrderArray(_node2);
         let index = 0;
@@ -2325,7 +2324,7 @@ export default class XFireApp {
      * @param params 请求参数组合
      * @param post 是否已post方式发送请求
      */
-    public httpGetString(url: string, params: { [key: string]: boolean | number | string } = null, post = false): Promise<{
+    public httpGetString (url: string, params: { [key: string]: boolean | number | string } = null, post = false): Promise<{
         content?: string;
         error?: string;
     }> {
@@ -2382,7 +2381,7 @@ export default class XFireApp {
      * @param params 请求参数组合
      * @param post 是否已post方式发送请求
      */
-    public httpGetJson<T>(url: string, params: { [key: string]: boolean | number | string } = null, post = false): Promise<{
+    public httpGetJson<T> (url: string, params: { [key: string]: boolean | number | string } = null, post = false): Promise<{
         json?: T;
         error?: string;
     }> {
@@ -2408,7 +2407,7 @@ export default class XFireApp {
         return p;
     }
 
-    public httpGetStringWithBody(url: string, body: string): Promise<{
+    public httpGetStringWithBody (url: string, body: string): Promise<{
         content?: string;
         error?: string;
     }> {
@@ -2445,7 +2444,7 @@ export default class XFireApp {
         return p;
     }
 
-    public httpGetJsonWithBody<T>(url: string, body: string | { [key: string]: any }): Promise<{
+    public httpGetJsonWithBody<T> (url: string, body: string | { [key: string]: any }): Promise<{
         json?: T;
         error?: string;
     }> {
@@ -2473,7 +2472,7 @@ export default class XFireApp {
      * 打乱一个数组内的成员顺序，返回原数组
      * @param ary 要乱序的数组
      */
-    public randomSort<T>(ary: T[]): T[] {
+    public randomSort<T> (ary: T[]): T[] {
         for (let i = 0, len = ary.length; i < len; i++) {
             let index = Math.floor(Math.random() * len);
             let temp = ary[i];
@@ -2488,7 +2487,7 @@ export default class XFireApp {
      * @param startInc 开始（含）
      * @param endExc 结束（不含）
      */
-    public getRandom(startInc: number, endExc: number) {
+    public getRandom (startInc: number, endExc: number) {
         return startInc + Math.random() * (endExc - startInc);
     }
 
@@ -2497,7 +2496,7 @@ export default class XFireApp {
      * @param startInc 开始（含）
      * @param endExc 结束（不含）
      */
-    public getRandomInteger(startInc: number, endExc: number) {
+    public getRandomInteger (startInc: number, endExc: number) {
         let start = Math.floor(startInc);
         let end = Math.floor(endExc);
         return Math.floor(start + (end - start) * Math.random());
@@ -2509,7 +2508,7 @@ export default class XFireApp {
      * @param endExc 结束（不含）
      * @param count 要获取的整数数量
      */
-    public getRandomUniqueIntegers(_startInc: number, _endExc: number, count: number, _rander?: { random: () => number }): number[] {
+    public getRandomUniqueIntegers (_startInc: number, _endExc: number, count: number, _rander?: { random: () => number }): number[] {
         let rander = _rander || {
             random: () => Math.random()
         };
@@ -2571,7 +2570,7 @@ export default class XFireApp {
      * 随机获取一个数组成员
      * @param ary 成员数组
      */
-    public getRandomMember<T>(ary: T[]): T {
+    public getRandomMember<T> (ary: T[]): T {
         return ary[Math.floor(Math.random() * ary.length)];
     }
 
@@ -2580,7 +2579,7 @@ export default class XFireApp {
      * @param ary 数据源
      * @param _count 要取出返回的数量
      */
-    public getRandomUniqueMembers<T>(ary: T[], _count: number, _rander?: { random: () => number }): T[] {
+    public getRandomUniqueMembers<T> (ary: T[], _count: number, _rander?: { random: () => number }): T[] {
         let count = Math.min(ary.length, _count);
         let indexes = this.getRandomUniqueIntegers(0, ary.length, count, _rander);
         return Array.from({ length: count }, (a, i) => {
@@ -2595,7 +2594,7 @@ export default class XFireApp {
      * @param exclude 排除下标
      * 出错返回-1
      */
-    public getRandomIndexExcept(arySize: number, exclude: number): number {
+    public getRandomIndexExcept (arySize: number, exclude: number): number {
         if (arySize < 1) {
             return -1;
         }
@@ -2617,7 +2616,7 @@ export default class XFireApp {
      * 按权重随机取数组下标
      * @param ary 权重数组或者包含weight属性的对象数组
      */
-    public getRandomIndexByWeight(ary: number[] | { weight: number }[]): number {
+    public getRandomIndexByWeight (ary: number[] | { weight: number }[]): number {
         let weights: number[] = [];
         if (typeof ary[0] === 'number') {
             weights = ary as number[];
@@ -2654,7 +2653,7 @@ export default class XFireApp {
      * @param origin 圆心坐标
      * @param radius 圆半径
      */
-    public getRandomPointInCircle(origin: cc.Vec2, radius: number): cc.Vec2 {
+    public getRandomPointInCircle (origin: cc.Vec2, radius: number): cc.Vec2 {
         let angle = Math.PI * 2 * Math.random();
         let r = Math.sqrt(radius * radius * Math.random());
         return cc.v2(Math.cos(angle) * r + origin.x, Math.sin(angle) * r + origin.y);
@@ -2664,7 +2663,7 @@ export default class XFireApp {
      * 将Uint8Array进行base64编码，可处理utf8字符串或字节流
      * @param u8 uint8数组
      */
-    public base64EncodeUtin8Array(u8: Uint8Array): string {
+    public base64EncodeUtin8Array (u8: Uint8Array): string {
         const base64CharMap = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
         let result = '';
         if (u8 == null || u8.length === 0) {
@@ -2718,7 +2717,7 @@ export default class XFireApp {
     /**
      * 将字符串编码为base64
      */
-    public base64Encode(input: string): string {
+    public base64Encode (input: string): string {
         let u8 = this.stringToUtf8(input);
         return this.base64EncodeUtin8Array(u8);
     }
@@ -2727,7 +2726,7 @@ export default class XFireApp {
      * 解码base64为Uint8Array
      */
     // tslint:disable-next-line: cyclomatic-complexity
-    public base64DecodeToUint8Array(base64: string): Uint8Array {
+    public base64DecodeToUint8Array (base64: string): Uint8Array {
         const tbl_base64decode: number[] = [
             255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
             255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -2814,7 +2813,7 @@ export default class XFireApp {
     }
 
     // 解码base64为字符串
-    public base64Decode(input: string): string {
+    public base64Decode (input: string): string {
         let u8 = this.base64DecodeToUint8Array(input);
         return this.utf8ToString(u8);
     }
@@ -2826,7 +2825,7 @@ export default class XFireApp {
      * @param key 密钥，字节长度限制为1-256
      * @returns 返回base64编码
      */
-    public encrypt(_text: string, _key: string): string {
+    public encrypt (_text: string, _key: string): string {
         let text = this.stringToUtf8(_text);
         let key = this.stringToUtf8(_key);
         /** 状态向量，固定256字节，作为密钥流生成种子，初始化为0-255 */
@@ -2860,7 +2859,7 @@ export default class XFireApp {
      * @param _key 密钥
      * @returns 失败会返回空字符串（''而非null）
      */
-    public decrypt(_input: string | Uint8Array, _key: string): string {
+    public decrypt (_input: string | Uint8Array, _key: string): string {
         let text: Uint8Array = _input as Uint8Array;
         if (typeof _input === 'string') {
             text = this.base64DecodeToUint8Array(_input);
@@ -2896,7 +2895,7 @@ export default class XFireApp {
      * 主要用于一些h5平台
      * @param name 参数名
      */
-    public getUrlParam(name: string) {
+    public getUrlParam (name: string) {
         let location = window.location;
         if (typeof location !== 'object') {
             return null;
@@ -2921,7 +2920,7 @@ export default class XFireApp {
      * @param params 截屏参数
      */
 
-    public captureScreen(params?: {
+    public captureScreen (params?: {
         root?: cc.Node;
         pos?: cc.Vec2;
         size?: cc.Size;
@@ -3025,7 +3024,7 @@ export default class XFireApp {
      * @example <caption>给一个数字字符串前面填充0，达到8位</caption>
      * str = padStart(str, 8, '0')
      */
-    public padStart(str: string, targetLength: number, padString: string): string {
+    public padStart (str: string, targetLength: number, padString: string): string {
         let lTargetLength = targetLength >> 0; // 数字取整，非数字转0
         let lPadString = String((typeof padString !== 'undefined' ? padString : ' '));
         if (str.length > targetLength) {
@@ -3047,7 +3046,7 @@ export default class XFireApp {
      * @param padString 要填充的字符串，会重复
      * @returns 返回一个新的填充好的字符串
      */
-    public padEnd(str: string, targetLength: number, padString: string): string {
+    public padEnd (str: string, targetLength: number, padString: string): string {
         let lTargetLength = targetLength >> 0; // 数字取整，非数字转0
         let lPadString = String((typeof padString !== 'undefined' ? padString : ' '));
         if (str.length > targetLength) {
@@ -3068,12 +3067,12 @@ export default class XFireApp {
      * @example <caption>判断ctrl是否按下</caption>
      * xfire.isKeyPressed(cc.macro.KEY.ctrl)
      */
-    public isKeyPressed(keyCode: cc.macro.KEY): boolean {
+    public isKeyPressed (keyCode: cc.macro.KEY): boolean {
         return this.pressedKeys[keyCode] === true;
     }
 
     /** 获取原生广告层 */
-    public getLayerNativeAd(): cc.Node {
+    public getLayerNativeAd (): cc.Node {
         if (this.layerNativeAd == null) {
             this.layerNativeAd = this.createLayerNativeAd();
         }
@@ -3081,7 +3080,7 @@ export default class XFireApp {
     }
 
     /** 设置二进制位 */ // 为啥不支持base64、自动扩容？会使函数过于复杂，状况过多
-    public setBit(bytes: Uint8Array, offset: number, bit: 0 | 1): boolean {
+    public setBit (bytes: Uint8Array, offset: number, bit: 0 | 1): boolean {
         if (!bytes || offset < 0) return false;
         let index = offset >>> 3;
         if (index >= bytes.byteLength) return false;
@@ -3095,7 +3094,7 @@ export default class XFireApp {
     }
 
     /** 读取二进制，读失败时返回defaultValue */
-    public getBit<T>(bytes: Uint8Array, offset: number, defaultValue?: T): 0 | 1 | T {
+    public getBit<T> (bytes: Uint8Array, offset: number, defaultValue?: T): 0 | 1 | T {
         if (!bytes || offset < 0) return defaultValue;
         let index = offset >>> 3;
         if (index >= bytes.byteLength) return defaultValue;
@@ -3103,7 +3102,7 @@ export default class XFireApp {
     }
 
     // tslint:disable-next-line: cyclomatic-complexity
-    protected createAdvertisements() {
+    protected createAdvertisements () {
         let adsdkcfg = this.getSdkConfig();
         if (adsdkcfg == null) {
             console.log('尚未配置广告sdk：' + this.getAdSdkName());
@@ -3187,7 +3186,7 @@ export default class XFireApp {
         }
     }
 
-    protected nativeOnShow(cb: (options?: LaunchOptions) => void): void {
+    protected nativeOnShow (cb: (options?: LaunchOptions) => void): void {
         cc.game.on(cc.game.EVENT_SHOW, () => {
             if (cb != null) {
                 cb();
@@ -3195,13 +3194,13 @@ export default class XFireApp {
         });
     }
 
-    protected nativeOnHide(cb: () => void) {
+    protected nativeOnHide (cb: () => void) {
         cc.game.on(cc.game.EVENT_HIDE, () => {
             cb();
         });
     }
 
-    protected init(config: AppConfig, createAdvertisements = true) {
+    protected init (config: AppConfig, createAdvertisements = true) {
         this.appConfig = config;
         // 有些平台不能马上创建，需要初始化，此时可覆写本函数
         if (createAdvertisements) {
@@ -3209,7 +3208,7 @@ export default class XFireApp {
         }
     }
 
-    protected getNavigateAppConfig(name: string): NavigateApp {
+    protected getNavigateAppConfig (name: string): NavigateApp {
         let sdkConfig = this.getSdkConfig();
         if (sdkConfig == null || sdkConfig.navigateApps == null) {
             console.log('未配置跳转列表');
@@ -3226,7 +3225,7 @@ export default class XFireApp {
     /**
      * 游戏内坐标转平台坐标转换，node非空则输入坐标相对于node坐标，否则相对于游戏内逻辑屏幕
      */
-    protected rectFromNodeToPlat(node: cc.Node, left: number, top: number, width: number, height: number): { left: number; top: number; width: number; height: number } {
+    protected rectFromNodeToPlat (node: cc.Node, left: number, top: number, width: number, height: number): { left: number; top: number; width: number; height: number } {
         let sysInfo = this.getSystemInfoSync();
         let ratio = cc.view.getVisibleSize().width / sysInfo.screenWidth;
         if (node != null) {
@@ -3258,18 +3257,18 @@ export default class XFireApp {
         return this.getAd(ad.config.alias, autoTransAlias, type);
     }
 
-    protected nativePay(payPoint: string, orderId: string) {
+    protected nativePay (payPoint: string, orderId: string) {
 
     }
 
-    protected nativeSetPayNotifier(notifier: {
+    protected nativeSetPayNotifier (notifier: {
         success?: (orderInfo: OrderInfo) => void;
         cancel?: (orderInfo: OrderInfo) => void;
         fail?: (orderInfo: OrderInfo, failMsg: string) => void;
     }) {
     }
 
-    protected listenKeyEvent() {
+    protected listenKeyEvent () {
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, (event: cc.Event.EventKeyboard) => {
             this.pressedKeys[event.keyCode] = true;
         }, this);
@@ -3285,7 +3284,7 @@ export default class XFireApp {
      * @param y 单位g
      * @param z 单位g
      */
-    protected dispatchAccelerometerChange(x: number, y: number, z: number, normalized: boolean) {
+    protected dispatchAccelerometerChange (x: number, y: number, z: number, normalized: boolean) {
         let cbs = this.copy(this.accCbs);
         for (let cb of cbs) {
             if (cb) {
@@ -3302,11 +3301,11 @@ export default class XFireApp {
      * 支付成功
      * @param orderId 订单号
      */
-    private onPaySuccess(orderId: string, goodsName: string, count: number) {
+    private onPaySuccess (orderId: string, goodsName: string, count: number) {
 
     }
 
-    private createLayerNativeAd(): cc.Node {
+    private createLayerNativeAd (): cc.Node {
         if (CC_EDITOR) {
             return;
         }
@@ -3326,7 +3325,7 @@ export default class XFireApp {
         return node;
     }
 
-    private createLayerMonitor() {
+    private createLayerMonitor () {
         if (CC_EDITOR) {
             return;
         }
@@ -3521,7 +3520,7 @@ export abstract class Ad {
     public enable = false;
     public platObj: any = null;
 
-    public constructor(sdkConfig: SdkCfg, config: AdCfg) {
+    public constructor (sdkConfig: SdkCfg, config: AdCfg) {
         this.sdkConfig = sdkConfig;
         this.config = config;
         // style格式化
@@ -3549,22 +3548,22 @@ export abstract class Ad {
         style.top = style.top || 0;
         style.bottom = style.bottom || 0;
     }
-    public isReady(): boolean {
+    public isReady (): boolean {
         return this.enable;
     }
-    public update(dtSecond: number, idleTimeSecond: number) { }
-    public abstract load(): void;
+    public update (dtSecond: number, idleTimeSecond: number) {}
+    public abstract load (): void;
 }
 
 class AliasAd extends Ad {
-    public constructor(sdkConfig: SdkCfg, config: AdCfg) {
+    public constructor (sdkConfig: SdkCfg, config: AdCfg) {
         super(sdkConfig, config);
     }
 
-    public load(): void {
+    public load (): void {
     }
 
-    public update(dtSecond: number, idleTimeSecond: number): void {
+    public update (dtSecond: number, idleTimeSecond: number): void {
     }
 }
 
@@ -3572,7 +3571,7 @@ class AliasAd extends Ad {
 export abstract class BannerAd extends Ad {
     public static needToRefreshBanners = false;
     // 刷新banner的可见性
-    public static refreshBanners() {
+    public static refreshBanners () {
         if (!BannerAd.needToRefreshBanners) {
             return;
         }
@@ -3614,7 +3613,7 @@ export abstract class BannerAd extends Ad {
     private time = 0;
     private duration = 0;
 
-    public constructor(sdkConfig: SdkCfg, config: AdCfg) {
+    public constructor (sdkConfig: SdkCfg, config: AdCfg) {
         super(sdkConfig, config);
         this.duration = config.duration || 0;
     }
@@ -3622,7 +3621,7 @@ export abstract class BannerAd extends Ad {
     // 表示平台自身是否支持自动刷新 如果支持自动刷新 那么我们的自动刷新会失效
     public abstract supportAutoRefresh(): boolean;
 
-    public show(): void {
+    public show (): void {
         if (this.isReady() && !this.visible) {
             this.visible = true;
             this.toShow = false;
@@ -3634,7 +3633,7 @@ export abstract class BannerAd extends Ad {
         }
     }
 
-    public hide(): void {
+    public hide (): void {
         if (this.isReady() && this.visible) {
             this.visible = false;
             this.toShow = false;
@@ -3646,17 +3645,17 @@ export abstract class BannerAd extends Ad {
         }
     }
 
-    public moveTo(bottom: number): void {
+    public moveTo (bottom: number): void {
     }
 
-    public moveToEx(left: number, top: number, width: number, height: number) {
+    public moveToEx (left: number, top: number, width: number, height: number) {
     }
 
-    public get size(): { width: number; height: number } {
+    public get size (): { width: number; height: number } {
         return { width: 0, height: 0 };
     }
 
-    public update(dtSecond: number, idleTimeSecond: number): void {
+    public update (dtSecond: number, idleTimeSecond: number): void {
         if (this.supportAutoRefresh() || !this.visible || this.duration <= 0) {
             return;
         }
@@ -3677,17 +3676,17 @@ export abstract class BannerAd extends Ad {
         }
     }
 
-    public reload(): void {
+    public reload (): void {
         console.log('刷新：' + this.config.name);
     }
-    public destroy() { }
-    protected abstract nativeShow(): void;
-    protected abstract nativeHide(): void;
+    public destroy () {}
+    protected abstract nativeShow (): void;
+    protected abstract nativeHide (): void;
 }
 
 // 视频广告
 export abstract class VideoAd extends Ad {
-    public play(cb: (end: boolean) => void): void {
+    public play (cb: (end: boolean) => void): void {
         if (this.isReady()) {
             this.nativePlay(cb);
         }
@@ -3696,12 +3695,12 @@ export abstract class VideoAd extends Ad {
         }
     }
 
-    public update(dtSecond: number, idleTimeSecond: number): void {
+    public update (dtSecond: number, idleTimeSecond: number): void {
 
     }
 
-    public destroy() { }
-    protected abstract nativePlay(cb: (end: boolean) => void): void;
+    public destroy () {}
+    protected abstract nativePlay (cb: (end: boolean) => void): void;
 }
 
 // 格子广告
@@ -3709,91 +3708,91 @@ export abstract class GridAd extends Ad {
     public toShow = false;
     public visible = false;
 
-    public constructor(sdkConfig: SdkCfg, config: AdCfg) {
+    public constructor (sdkConfig: SdkCfg, config: AdCfg) {
         super(sdkConfig, config);
         if (config.style == null) {
             config.style = { left: 0, bottom: 0, width: 0, height: 0 };
         }
     }
 
-    public show(): void {
+    public show (): void {
         if (this.isReady()) {
             this.nativeShow();
         }
     }
 
-    public hide(): void {
+    public hide (): void {
         this.nativeHide();
     }
 
-    public moveTo(bottom: number): void {
+    public moveTo (bottom: number): void {
     }
 
-    public get size(): { width: number; height: number } {
+    public get size (): { width: number; height: number } {
         return { width: 0, height: 0 };
     }
 
-    public destroy(): void {
+    public destroy (): void {
     }
-    protected abstract nativeShow(): void;
-    protected abstract nativeHide(): void;
+    protected abstract nativeShow (): void;
+    protected abstract nativeHide (): void;
 }
 
 // 插屏广告
 export abstract class InterstitialAd extends Ad {
-    public show(): void {
+    public show (): void {
         if (this.isReady()) {
             this.nativeShow();
         }
     }
 
-    public destroy() { }
-    protected abstract nativeShow(): void;
+    public destroy () {}
+    protected abstract nativeShow (): void;
 }
 
 // 插屏广告
 export abstract class AppBoxAd extends Ad {
-    public show(): void {
+    public show (): void {
         if (this.isReady()) {
             this.nativeShow();
         }
     }
 
-    public destroy() { }
-    protected abstract nativeShow(): void;
+    public destroy () {}
+    protected abstract nativeShow (): void;
 }
 
 /**
  * 全屏广告，比如全屏视频，与激励视频的区别：通常看一会就可以直接关闭，不与奖励绑定
  */
 export abstract class FullscreenAd extends Ad {
-    public show(): void {
+    public show (): void {
         if (this.isReady()) {
             this.nativeShow();
         }
     }
 
-    protected abstract nativeShow(): void;
+    protected abstract nativeShow (): void;
 }
 
 // 信息流广告
 export abstract class FeedsAd extends Ad {
-    public show(onclose?: () => void): void {
+    public show (onclose?: () => void): void {
         if (this.isReady()) {
             this.nativeShow(onclose);
         }
     }
 
-    public hide(): void {
+    public hide (): void {
         this.nativeHide();
     }
 
-    public moveTo(left: number, top: number, width: number, height: number): void {
+    public moveTo (left: number, top: number, width: number, height: number): void {
     }
 
-    public destroy() { }
-    protected abstract nativeShow(onclose?: () => void): void;
-    protected abstract nativeHide(): void;
+    public destroy () {}
+    protected abstract nativeShow (onclose?: () => void): void;
+    protected abstract nativeHide (): void;
 }
 
 /** 积木广告 */
@@ -3801,14 +3800,14 @@ export abstract class BlockAd extends Ad {
     public toShow = false;
     public visible = false;
 
-    public constructor(sdkConfig: SdkCfg, config: AdCfg) {
+    public constructor (sdkConfig: SdkCfg, config: AdCfg) {
         super(sdkConfig, config);
         if (config.style == null) {
             config.style = { left: 0, bottom: 0, width: 0, height: 0 };
         }
     }
 
-    public show(): void {
+    public show (): void {
         if (this.isReady() && !this.visible) {
             this.visible = true;
             this.toShow = false;
@@ -3820,7 +3819,7 @@ export abstract class BlockAd extends Ad {
         }
     }
 
-    public hide(): void {
+    public hide (): void {
         if (this.isReady() && this.visible) {
             this.visible = false;
             this.toShow = false;
@@ -3832,17 +3831,17 @@ export abstract class BlockAd extends Ad {
         }
     }
 
-    public moveTo(left: number, top: number): void {
+    public moveTo (left: number, top: number): void {
     }
 
-    public get size(): { width: number; height: number } {
+    public get size (): { width: number; height: number } {
         return { width: 0, height: 0 };
     }
 
-    public destroy(): void {
+    public destroy (): void {
     }
-    protected abstract nativeShow(): void;
-    protected abstract nativeHide(): void;
+    protected abstract nativeShow (): void;
+    protected abstract nativeHide (): void;
 }
 
 // 更多游戏按钮
@@ -3851,14 +3850,14 @@ export abstract class XMoreGamesButton {
     protected callbacks: (() => void)[] = [];
     protected nativeCallback: () => void = null;
 
-    public constructor(platObj: any) {
+    public constructor (platObj: any) {
         this.platObj = platObj;
     }
-    public abstract show(): void;
-    public abstract hide(): void;
-    public abstract destroy(): void;
+    public abstract show (): void;
+    public abstract hide (): void;
+    public abstract destroy (): void;
 
-    public onTap(cb: () => void): void {
+    public onTap (cb: () => void): void {
         if (cb == null) {
             return;
         }
@@ -3875,7 +3874,7 @@ export abstract class XMoreGamesButton {
             });
         }
     }
-    public offTab(cb: () => void): void {
+    public offTab (cb: () => void): void {
         for (let i = 0; i < this.callbacks.length; i++) {
             let callback = this.callbacks[i];
             if (callback === cb) {
@@ -3887,8 +3886,8 @@ export abstract class XMoreGamesButton {
             this.nativeOffTap(this.nativeCallback);
         }
     }
-    protected abstract nativeOnTap(cb: () => void): void;
-    protected abstract nativeOffTap(cb: () => void): void;
+    protected abstract nativeOnTap (cb: () => void): void;
+    protected abstract nativeOffTap (cb: () => void): void;
 }
 
 // 用户信息获取按钮
@@ -3896,14 +3895,14 @@ export abstract class XUserInfoButton {
     protected platObj: any = null;
     protected callbacks: ((res: XUserInfoWithSignature) => void)[] = [];
     protected nativeCallback: (res: XUserInfoWithSignature) => void = null;
-    public constructor(platObj: any) {
+    public constructor (platObj: any) {
         this.platObj = platObj;
     }
 
-    public abstract show(): void;
-    public abstract hide(): void;
-    public abstract destroy(): void;
-    public onTap(cb: (res: XUserInfoWithSignature) => void): void {
+    public abstract show (): void;
+    public abstract hide (): void;
+    public abstract destroy (): void;
+    public onTap (cb: (res: XUserInfoWithSignature) => void): void {
         if (cb == null) {
             return;
         }
@@ -3920,7 +3919,7 @@ export abstract class XUserInfoButton {
             });
         }
     }
-    public offTab(cb: (res: XUserInfoWithSignature) => void): void {
+    public offTab (cb: (res: XUserInfoWithSignature) => void): void {
         for (let i = 0; i < this.callbacks.length; i++) {
             let callback = this.callbacks[i];
             if (callback === cb) {
@@ -3932,8 +3931,8 @@ export abstract class XUserInfoButton {
             this.nativeOffTap(this.nativeCallback);
         }
     }
-    protected abstract nativeOnTap(cb: (res: XUserInfoWithSignature) => void): void;
-    protected abstract nativeOffTap(cb: any): void;
+    protected abstract nativeOnTap (cb: (res: XUserInfoWithSignature) => void): void;
+    protected abstract nativeOffTap (cb: any): void;
 }
 
 // 意见反馈按钮
@@ -3941,14 +3940,14 @@ export abstract class XFeedbackButton {
     protected platObj = null;
     protected callbacks: (() => void)[] = [];
     protected nativeCallback: () => void = null;
-    public constructor(platObj: any) {
+    public constructor (platObj: any) {
         this.platObj = platObj;
     }
 
-    public abstract show(): void;
-    public abstract hide(): void;
-    public abstract destroy(): void;
-    public onTap(cb: () => void): void {
+    public abstract show (): void;
+    public abstract hide (): void;
+    public abstract destroy (): void;
+    public onTap (cb: () => void): void {
         if (cb == null) {
             return;
         }
@@ -3965,7 +3964,7 @@ export abstract class XFeedbackButton {
             });
         }
     }
-    public offTab(cb: () => void): void {
+    public offTab (cb: () => void): void {
         for (let i = 0; i < this.callbacks.length; i++) {
             let callback = this.callbacks[i];
             if (callback === cb) {
@@ -3977,8 +3976,8 @@ export abstract class XFeedbackButton {
             this.nativeOffTap(this.nativeCallback);
         }
     }
-    protected abstract nativeOnTap(cb: () => void): void;
-    protected abstract nativeOffTap(cb: any): void;
+    protected abstract nativeOnTap (cb: () => void): void;
+    protected abstract nativeOffTap (cb: any): void;
 }
 
 /**  游戏圈按钮 */
@@ -3986,14 +3985,14 @@ export abstract class XGameClubButton {
     protected platObj = null;
     protected callbacks: (() => void)[] = [];
     protected nativeCallback: () => void = null;
-    public constructor(platObj: any) {
+    public constructor (platObj: any) {
         this.platObj = platObj;
     }
 
-    public abstract show(): void;
-    public abstract hide(): void;
-    public abstract destroy(): void;
-    public onTap(cb: () => void): void {
+    public abstract show (): void;
+    public abstract hide (): void;
+    public abstract destroy (): void;
+    public onTap (cb: () => void): void {
         if (cb == null) {
             return;
         }
@@ -4010,7 +4009,7 @@ export abstract class XGameClubButton {
             });
         }
     }
-    public offTab(cb: () => void): void {
+    public offTab (cb: () => void): void {
         for (let i = 0; i < this.callbacks.length; i++) {
             let callback = this.callbacks[i];
             if (callback === cb) {
@@ -4022,8 +4021,8 @@ export abstract class XGameClubButton {
             this.nativeOffTap(this.nativeCallback);
         }
     }
-    protected abstract nativeOnTap(cb: () => void): void;
-    protected abstract nativeOffTap(cb: any): void;
+    protected abstract nativeOnTap (cb: () => void): void;
+    protected abstract nativeOffTap (cb: any): void;
 }
 
 /** 联系客服按钮 */
@@ -4081,7 +4080,7 @@ export class XUserInfoWithSignature {
     public userInfo: XUserInfo;
     public platSignature: any;
 
-    public constructor(nickname: string, avatar: string, gender: string, platSignature: any) {
+    public constructor (nickname: string, avatar: string, gender: string, platSignature: any) {
         this.userInfo = { nickname, avatar, gender };
         this.platSignature = platSignature;
     }

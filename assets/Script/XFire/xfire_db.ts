@@ -9,6 +9,9 @@
         1.支持计费模拟
 *************************************************************************/
 
+/**
+ * 桌面浏览器
+ */
 import XFireApp, { AdCfg, BannerAd, LaunchOptions, LoginError, LoginResult, OrderInfo, SdkCfg, SystemInfo } from './xfire_base';
 const KEY_USERNAME = '__browser_login_username';
 const KEY_PASSWORD = '__browser_login_password';
@@ -43,7 +46,7 @@ export default class XFireAppDB extends XFireApp{
     }
 
     public getSystemInfoSync(): SystemInfo {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         if (cc.sys.platform === cc.sys.DESKTOP_BROWSER) {
@@ -65,11 +68,49 @@ export default class XFireAppDB extends XFireApp{
     }
 
     public supportPayment(): boolean {
-        return CC_DEV;
+        return true;
+    }
+
+    public supportClipboard () {
+        return true;
+    }
+
+    /**
+     * 将字符串复制到剪贴板，成功true，失败false
+     * @param content 拷贝内容
+     */
+    public setClipboardData (content: string): Promise<boolean> {
+        return new Promise<boolean>((resolve) => {
+            try {
+                window.navigator.clipboard.writeText(content)
+                    .then(() => resolve(true))
+                    .catch(() => resolve(false));
+            } catch (e) {
+                resolve(false);
+            }
+            resolve(false);
+        });
+    }
+
+    public getClipboardData (): Promise<string> {
+        return new Promise<string>((resolve) => {
+            try {
+                window.navigator.clipboard.readText()
+                    .then((text) => {
+                        resolve(text);
+                    })
+                    .catch((err) => {
+                        resolve('');
+                    });
+            } catch (e) {
+                resolve('');
+            }
+            resolve('');
+        });
     }
 
     public supportLogin(): boolean {
-        return CC_DEV;
+        return true;
     }
 
     public login(params: {
@@ -78,7 +119,7 @@ export default class XFireAppDB extends XFireApp{
         fail?: (err: LoginError) => void;
         complete?: () => void;
     }= {}): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || !CC_DEV) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         let username = cc.sys.localStorage.getItem(KEY_USERNAME);
@@ -92,29 +133,32 @@ export default class XFireAppDB extends XFireApp{
     }
 
     public createBannerAd(sdkConfig: SdkCfg, cfg: AdCfg): BannerAd {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         return new BannerAdDBSim(sdkConfig, cfg);
     }
 
-    protected nativePay(orderid: string, goodsName: string, count: number, price: number, goodsId: string) {
-        if (!CC_DEV) {
-            return super.nativePay(orderid, goodsName, count, price, goodsId);
+    protected nativePay(payPoint: string, orderid: string) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
+            return;
         }
-
-        let ret = window.confirm(`是否购买：【${goodsName}】` + (count > 1 ? 'x' + count + '?' : '?') + '  价格:' + price + '元。');
+        if (false) {
+            return super.nativePay(payPoint, orderid);
+        }
+        let cfg = this.getPayPointConfig(payPoint);
+        let ret = window.confirm(`是否购买：【${cfg.goods}】` + (cfg.count > 1 ? 'x' + cfg.count + '?' : '?') + '  价格:' + cfg.price + '元。');
         setTimeout(() => {
             if (ret) {
                 // 模拟成功
                 if (this.nativePayNotifier && this.nativePayNotifier.success) {
-                    this.nativePayNotifier.success({orderid, goodsId, goodsName, count, price});
+                    this.nativePayNotifier.success({payPoint, orderid, goodsName: cfg.goods, count: cfg.count, price: cfg.price});
                 }
             }
             else {
                 // 模拟失败
                 if (this.nativePayNotifier && this.nativePayNotifier.fail) {
-                    this.nativePayNotifier.fail({orderid, goodsId, goodsName, count, price}, '计费失败');
+                    this.nativePayNotifier.fail({payPoint, orderid, goodsName: cfg.goods, count: cfg.count, price: cfg.price}, '计费失败');
                 }
             }
         }, 2000);
@@ -134,20 +178,20 @@ export default class XFireAppDB extends XFireApp{
         fail?: (err: LoginError) => void;
         complete?: () => void;
     }) {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || !CC_DEV) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         if (this.pageLogin) {
             return;
         }
-        let scene = cc.director.getScene();
+        let layerAd = xfire.getLayerNativeAd();
         let pageLogin = new cc.Node('模拟登录页');
-        scene.addChild(pageLogin);
+        layerAd.addChild(pageLogin);
         this.pageLogin = pageLogin;
         pageLogin.width = cc.view.getVisibleSize().width;
         pageLogin.height = cc.view.getVisibleSize().height;
-        pageLogin.x = cc.view.getVisibleSize().width / 2;
-        pageLogin.y = cc.view.getVisibleSize().height / 2;
+        pageLogin.x = 0; // cc.view.getVisibleSize().width / 2;
+        pageLogin.y = 0; // cc.view.getVisibleSize().height / 2;
         pageLogin.zIndex = cc.macro.MAX_ZINDEX;
         pageLogin.addComponent(cc.BlockInputEvents);
         let createSpriteNode = (width: number, height: number, color?: cc.Color, opacity?: number) => {
@@ -278,7 +322,7 @@ export default class XFireAppDB extends XFireApp{
         fail?: (err: LoginError) => void;
         complete?: () => void;
     }) {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || !CC_DEV) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         setTimeout(() => {
@@ -314,7 +358,7 @@ class BannerAdDBSim extends BannerAd{
 
     public constructor(sdkConfig: SdkCfg, config: AdCfg) {
         super(sdkConfig, config);
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         let screenSize = cc.view.getVisibleSize();
@@ -331,7 +375,7 @@ class BannerAdDBSim extends BannerAd{
     }
 
     public load(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         // 定义style转换接口
@@ -355,7 +399,7 @@ class BannerAdDBSim extends BannerAd{
                 }
             });
             banner.onResize((res: {width: number; height: number}) => {
-                // console.log('banner onResize：' + this.config.name + ' size：' + JSON.stringify(res));
+                console.log('banner onResize：' + this.config.name + ' size：' + JSON.stringify(res));
                 this.realSize.width = res.width;
                 this.realSize.height = res.height;
                 let imageRatio = res.width / res.height;
@@ -383,7 +427,7 @@ class BannerAdDBSim extends BannerAd{
     }
 
     public get size(): {width: number; height: number} {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
 
@@ -398,7 +442,7 @@ class BannerAdDBSim extends BannerAd{
     }
 
     public moveTo(bottom: number): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         let lBottom = bottom;
@@ -416,7 +460,7 @@ class BannerAdDBSim extends BannerAd{
     }
 
     public moveToEx(left: number, top: number, width: number, height: number): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         let sizeChanged = this.movetoBox.width !== width || this.movetoBox.height !== height;
@@ -449,7 +493,7 @@ class BannerAdDBSim extends BannerAd{
     }
 
     protected nativeShow(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         if (this.platObj != null) {
@@ -458,7 +502,7 @@ class BannerAdDBSim extends BannerAd{
     }
 
     protected nativeHide(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         if (this.platObj != null) {
@@ -504,7 +548,7 @@ class SimBannerAd{
     }
 
     public triggerOnLoad() {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         this.banner.style.left = this.style.left + 'px';
@@ -516,7 +560,7 @@ class SimBannerAd{
     }
 
     public resetStyle(style: {left?: number; top?: number; width?: number; height?: number}) {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         if (style.left) {
@@ -549,7 +593,7 @@ class SimBannerAd{
     }
 
     private refreshSize() {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
             return;
         }
         let imgWidth = this.img.naturalWidth;
@@ -576,7 +620,7 @@ class SimBannerAd{
 }
 
 function createBannerAd(params: {adUnitId: string; style?: {left?: number; top?: number; width?: number; height?: number}}): SimBannerAd {
-    if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+    if (xfire.plat !== xfire.PLAT_DESKTOP_BROWSER && xfire.plat !== xfire.PLAT_MOBILE_BROWSER) {
         return;
     }
 

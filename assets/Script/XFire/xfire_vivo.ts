@@ -3,16 +3,17 @@
  * 文档：http://minigame.vivo.com.cn/documents/#/lesson/open-ability/ad
  * 平台特性：
  *      1.如需联网需要在后台启用账号系统
- *      2.主包、分包不超4MB，总计不超8MB，【注】分包时vivo打包会额外打入个整包，估实际大小会翻倍
+ *      2.开屏广告后台配置开启即可
+ *      3.构建时基础库版本填写1090（2022年1月18日）
  *
  * 发布方法：
- *      1.先安装工具包：npm install -g qgame-toolkit
- *      2.发布为vivo工程，支持的最小平台版本号选择1054，发布目录为qgame
+ *      1.先安装工具包：npm install -g @vivo-minigame/cli@latest
+ *      2.发布为vivo工程，发布目录为qgame
  *      3.将生成rpk拷贝到sd目录
- *      4.打开快应用调试器，选择本地安装
+ *      4.打开快应用调试器，选择本地安装，或者构建界面直接点运行，然后手机调试器扫码运行
  */
 
-import XFireApp, { AdCfg, BannerAd, InterstitialAd, LoginError, LoginResult, SdkCfg, SystemInfo, VideoAd } from './xfire_base';
+import XFireApp, { AdCfg, BannerAd, FeedsAd, InterstitialAd, LoginError, LoginResult, SdkCfg, SystemInfo, VideoAd } from './xfire_base';
 import XFireConfigs from './xfire_config';
 
 const vivoapi: any = (window as any).qg;
@@ -31,7 +32,7 @@ interface VivoSystemInfo {
 
 let vivoSystemInfo: VivoSystemInfo;
 
-if (!cc.sys.platform === cc.sys.WECHAT_GAME && cc.sys.platform === cc.sys.VIVO_GAME) {
+if (!(cc.sys.platform === cc.sys.WECHAT_GAME) && cc.sys.platform === cc.sys.VIVO_GAME) {
     vivoapi.getSystemInfo({
         success(res: VivoSystemInfo) {
             vivoSystemInfo = res;
@@ -67,10 +68,6 @@ export default class XFireAppVivo extends XFireApp{
         return 'vivo小程序';
     }
 
-    public mustArchiveOnline(): boolean {
-        return true;
-    }
-
     public supportVibrate(): boolean {
         return true;
     }
@@ -87,6 +84,10 @@ export default class XFireAppVivo extends XFireApp{
         return vivoapi.getSystemInfoSync().platformVersionCode >= 1053;
     }
 
+    public exit() {
+        vivoapi.exitApplication();
+    }
+
     public supportBannerAd(): boolean {
         return true;
     }
@@ -99,11 +100,21 @@ export default class XFireAppVivo extends XFireApp{
         return true;
     }
 
+    public supportFeedsAd(): boolean {
+        return vivoapi.createCustomAd != null;
+    }
+
+    public supportFeedsAdMove(): boolean {
+        return false;
+    }
+
     public supportShortcut(): boolean {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         return vivoapi && vivoapi.installShortcut != null;
     }
 
     public installShortcut(): Promise<boolean> {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         return new Promise<boolean>((resolve) => {
             if (cc.sys.platform === cc.sys.WECHAT_GAME || !vivoapi.installShortcut) {
                 resolve(false);
@@ -121,8 +132,9 @@ export default class XFireAppVivo extends XFireApp{
     }
 
     public hasShortcutInstalled(): Promise<boolean> {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         return new Promise<boolean>((resolve) => {
-            if (cc.sys.platform === cc.sys.WECHAT_GAME || !vivoapi.hasShortcutInstalled) {
+            if (!vivoapi.hasShortcutInstalled) {
                 resolve(false);
                 return;
             }
@@ -142,6 +154,7 @@ export default class XFireAppVivo extends XFireApp{
     }
 
     public setClipboardData(content: string): Promise<boolean> {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         return new Promise<boolean> ((resolve) => {
             vivoapi.setClipboardData({
                 text: content,
@@ -156,6 +169,7 @@ export default class XFireAppVivo extends XFireApp{
     }
 
     public getClipboardData(): Promise<string> {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         return new Promise<string> ((resolve) => {
             vivoapi.getClipboardData({
                 success: (res) => {
@@ -174,14 +188,12 @@ export default class XFireAppVivo extends XFireApp{
             fail?: (err: LoginError) => void;
             complete?: () => void;
         }= {}): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
 
         vivoapi.login().then((res) => {
             if (res.data.token) {
                 if (params.success) {
-                    params.success({plat: this.plat, token: res.data.token });
+                    params.success({plat: this.plat, code: res.data.token });
                 }
             }
             else {
@@ -203,30 +215,27 @@ export default class XFireAppVivo extends XFireApp{
     }
 
     public createBannerAd(sdkConfig: SdkCfg, cfg: AdCfg): BannerAd {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         return new BannerAdVivo(sdkConfig, cfg);
     }
 
     public createVideoAd(sdkConfig: SdkCfg, cfg: AdCfg): VideoAd {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         return new VideoAdVivo(sdkConfig, cfg);
     }
 
     public createInterstitialAd(sdkConfig: SdkCfg, cfg: AdCfg): InterstitialAd {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         return new InterstitialAdVivo(sdkConfig, cfg);
     }
 
+    public createFeedsAd(sdkConfig: SdkCfg, cfg: AdCfg): FeedsAd {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
+        return new FeedsAdVivo(sdkConfig, cfg);
+    }
+
     public getSystemInfoSync(): SystemInfo {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         let info = null;
         if (typeof vivoapi.getSystemInfoSync === 'function') {
             info = vivoapi.getSystemInfoSync();
@@ -262,9 +271,7 @@ class BannerAdVivo extends BannerAd{
     }
 
     public load(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         this.enable = true;
     }
 
@@ -272,9 +279,7 @@ class BannerAdVivo extends BannerAd{
     }
 
     protected nativeShow(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
 
         if (this.platObj != null) {
             this.platObj.show().then(() => {
@@ -319,9 +324,7 @@ class BannerAdVivo extends BannerAd{
     }
 
     protected nativeHide(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         if (this.platObj != null) {
             this.platObj.hide();
         }
@@ -338,13 +341,12 @@ class VideoAdVivo extends VideoAd{
     private limitTime = 0;      // 限制时间内不能再播放视频
 
     public isReady(): boolean {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         return this.enable && this.limitTime === 0;
     }
 
     public load(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         let param = {posId: this.config.id};
         let video = vivoapi.createRewardedVideoAd(param);
         if (video != null) {
@@ -393,6 +395,7 @@ class VideoAdVivo extends VideoAd{
     }
 
     public update(dt: number, idleTime: number): void {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         this.limitTime -= dt;
         if (this.limitTime < 0) {
             this.limitTime = 0;
@@ -408,9 +411,7 @@ class VideoAdVivo extends VideoAd{
     }
 
     protected nativePlay(cb: (end: boolean) => void): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         this.playCb = cb;
         if (this.platObj != null) {
             this.platObj.show()
@@ -432,6 +433,7 @@ class VideoAdVivo extends VideoAd{
     }
 
     private reload() {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         console.log('请求加载视频：' + this.config.name);
         this.enable = false;
         this.loading = true;
@@ -444,9 +446,7 @@ class VideoAdVivo extends VideoAd{
 
 class InterstitialAdVivo extends InterstitialAd {
     public load(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
         this.enable = true;
     }
 
@@ -457,9 +457,7 @@ class InterstitialAdVivo extends InterstitialAd {
     }
 
     protected nativeShow(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-            return;
-        }
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
 
         let param = {posId: this.config.id};
         let ad = vivoapi.createInterstitialAd(param);
@@ -476,4 +474,63 @@ class InterstitialAdVivo extends InterstitialAd {
             });
         }
     }
+}
+
+class FeedsAdVivo extends FeedsAd {
+
+    /** 关闭回调 */
+    private onclose: () => void;
+
+    public constructor(sdkConfig: SdkCfg, config: AdCfg) {
+        super(sdkConfig, xfire.copy(config));
+    }
+
+    public load(): void {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
+        let param = {adUnitId: this.config.id};
+        this.platObj = vivoapi.createCustomAd(param);
+        if (this.platObj) {
+            this.platObj.onLoad(() => {
+                console.log('原生模板广告加载成功：' + this.config.name);
+                this.enable = true;
+            });
+            this.platObj.onClose(() => {
+                if (this.onclose) {
+                    this.onclose();
+                }
+                this.enable = false;
+                this.load();
+            });
+            this.platObj.onError(() => {
+                if (!this.enable) {
+                    setTimeout(() => {
+                        this.load();
+                    }, 5000);
+                }
+            });
+        }
+    }
+
+    public moveTo(left: number, top: number, width: number, height: number): void {
+    }
+
+    protected nativeShow(onclose: () => void): void {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
+        this.onclose = onclose;
+        if (this.platObj) {
+            this.platObj.show();
+        }
+    }
+
+    protected nativeHide(): void {
+        if (xfire.plat !== xfire.PLAT_VIVO) return;
+        if (this.platObj) {
+            this.enable = false;
+            setTimeout(() => {
+                this.platObj.hide();
+                this.load();
+            }, 0);
+        }
+    }
+
 }

@@ -5,8 +5,6 @@ import XFireApp, { LaunchOptions, SystemInfo } from './xfire_base';
 import XFireAppDB from './xfire_db';
 
 export default class XFireAppMB extends XFireAppDB{
-    /** 加速度监听函数 */
-    private accCb: (eventData: DeviceMotionEvent) => void = null;
 
     public constructor() {
         super();
@@ -21,7 +19,7 @@ export default class XFireAppMB extends XFireAppDB{
     }
 
     public getSystemInfoSync(): SystemInfo {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if ((cc.sys.platform === cc.sys.WECHAT_GAME)) {
             return;
         }
         return {
@@ -34,31 +32,5 @@ export default class XFireAppMB extends XFireAppDB{
             windowHeight: cc.view.getVisibleSize().height,
             language: navigator.language
         };
-    }
-
-    public supportAccelerometer(): boolean {
-        return window.DeviceMotionEvent != null;
-    }
-
-    public startAccelerometer() {
-        if (window.DeviceMotionEvent == null) {
-            return;
-        }
-        if (this.accCb == null) {
-            this.accCb = (eventData: DeviceMotionEvent) => {
-                let acc = eventData.accelerationIncludingGravity;
-                if (acc == null) {
-                    return;
-                }
-                let g = 9.80665;
-                this.dispatchAccelerometerChange(-acc.x / g, -acc.y / g, -acc.z / g);
-            };
-        }
-        window.removeEventListener('devicemotion', this.accCb);
-        window.addEventListener('devicemotion', this.accCb);
-    }
-
-    public stopAccelerometer() {
-        window.removeEventListener('devicemotion', this.accCb);
     }
 }

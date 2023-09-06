@@ -1,7 +1,12 @@
-/**
- * 杭州炫火科技有限公司
- * 小程序弱联网接口
- */
+/*******************************************************************************
+文件: xfireol.ts
+创建: 2019年
+作者: 老张(zwx@xfire.mobi)
+描述:
+    杭州炫火科技有限公司
+    小程序弱联网接口
+*******************************************************************************/
+
 import xfire from './xfire';
 import { AppConfig, XUserInfoWithSignature } from './xfire_base';
 const Configs = {
@@ -16,22 +21,46 @@ const GUEST_ID = '__xfireol_guest_id';
 
 interface OnlineUserInfo{
     id: number;
+    platId: string;
     nickname: string;
     avatar: string;
     session: string;
+    platSession: string;
     guest: boolean;
     noname: boolean;
+    infoSign: string;
+    share?: number;
+    /** 注册时间 */
+    regTime?: number;
+    loginDays?: number;
+    vip?: number;
+    gender: string;
+    token?: string;
 }
 
 export class XFireOnline{
     public id = 0;
+    /** 平台分配的id，如微信的openid */
+    public platId = '';
     public nickname = '';
     public avatar = '';
     public noname = true;       // 标记是否已设置昵称
     public guest = true;        // 标记是否为游客
+    public platSession = '';
+    /** 服务器下发的 id + nickname + avatar的签名，主要供其他平台使用 */
+    public infoSign = '';
+    /** 分享人数 */
+    public share = 0;
+    /** 注册时间戳 */
+    public regTime = 0;
+    /** 登录天数 */
+    public loginDays = 0;
+    /** vip等级 */
+    public vip = 0;
+    public gender = '';
+    public token = '';
 
     private session: string = null;
-    private userinfo: OnlineUserInfo = null;
 
     public supportLogin(): boolean {
         return xfire.supportLogin() || xfire.allowGuest();
@@ -42,7 +71,22 @@ export class XFireOnline{
     }
 
     public getUserInfo(): OnlineUserInfo {
-        return this.userinfo || {id: 0, nickname: '', avatar: '', session: this.session, noname: true, guest: true};
+        return {
+            id: this.id,
+            platId: this.platId,
+            nickname: this.nickname,
+            avatar: this.avatar,
+            session: this.session,
+            platSession: this.platSession,
+            noname: this.noname,
+            guest: this.guest,
+            infoSign: this.infoSign,
+            share: this.share,
+            regTime: this.regTime,
+            loginDays: this.loginDays,
+            gender: this.gender,
+            token: this.token
+        };
     }
 
     /**
@@ -115,11 +159,12 @@ export class XFireOnline{
                     res.appid = appConfig.appid;
                     let params: any = {};
                     params.plat = xfire.plat;
+                    params.subPlat = xfire.getSubPlat();
                     params.appid = appConfig.appid;
-                    params.channel = appConfig.channel;
+                    params.channel = xfire.getChannel();
                     params.userid = res.userid;
                     params.code = res.code;
-                    params.sharer = 0;
+                    params.sharer = xfire.getSharer();
                     params.signature = res.signature;
                     params.token = res.token;
                     params.account = res.account;
@@ -131,6 +176,7 @@ export class XFireOnline{
                     params.password = res.password;
                     params.platform = res.platform;
                     params.ticket = res.ticket;
+                    this.token = res.token;
                     params.guestId = cc.sys.localStorage.getItem(GUEST_ID);
 
                     doLogin(params);
@@ -139,8 +185,9 @@ export class XFireOnline{
                     if (xfire.allowGuest()) {
                         let params: any = {};
                         params.plat = xfire.plat;
+                        params.subPlat = xfire.getSubPlat();
                         params.appid = appConfig.appid;
-                        params.channel = appConfig.channel;
+                        params.channel = xfire.getChannel();
                         params.version = appConfig.version || '';
                         params.loginAsGuest = true; // 游客登录标记
                         params.guestId = cc.sys.localStorage.getItem(GUEST_ID);
@@ -198,6 +245,7 @@ export class XFireOnline{
                         resolve({userInfo: data.data});
                     }
                     else {
+                        console.log('游客登录失败:' + data.msg);
                         callFail(data.msg);
                     }
                 });
@@ -205,13 +253,68 @@ export class XFireOnline{
             {
                 let params: any = {};
                 params.plat = xfire.plat;
+                params.subPlat = xfire.getSubPlat();
                 params.appid = appConfig.appid;
-                params.channel = appConfig.channel;
+                params.channel = xfire.getChannel();
                 params.version = appConfig.version || '';
                 params.loginAsGuest = true;
                 params.guestId = cc.sys.localStorage.getItem(GUEST_ID);
                 doLogin(params);
             }
+        });
+    }
+
+    /** 检查登录session是否有效，未登录返回false，如果服务器返回无效，会清除本地session */
+    public checkSession(params?: {
+        success?: (valid: boolean) => void;
+        fail?: (err: string) => void;
+        complete?: () => void;
+    }): Promise<{
+        valid?: boolean;
+        error?: string;
+    }> {
+        let lParams = (params || {}) as {
+            success?: (valid: boolean) => void;
+            fail?: (err: string) => void;
+            complete?: () => void;
+        };
+        return new Promise<{
+            valid?: boolean;
+            error?: string;
+        }> ((resolve) => {
+            let callFail = (err: string) => {
+                console.log(err);
+                if (lParams.fail) {
+                    lParams.fail(err || '未知错误');
+                }
+                if (lParams.complete) {
+                    lParams.complete();
+                }
+                resolve({error: err || '未知错误'});
+            };
+
+            if (!this.isLogined()) {
+                if (lParams.success) lParams.success(false);
+                if (lParams.complete) lParams.complete();
+                resolve({valid: false});
+            }
+            this.request('checkSession', undefined, (data) => {
+                if (data.result === 'ok') {
+                    if (!data.data.valid) {
+                        this.session = '';
+                    }
+                    if (lParams.success) {
+                        lParams.success(data.data.valid);
+                    }
+                    if (lParams.complete) {
+                        lParams.complete();
+                    }
+                    resolve({valid: data.data.valid});
+                }
+                else {
+                    callFail(data.msg);
+                }
+            });
         });
     }
 
@@ -425,6 +528,52 @@ export class XFireOnline{
         });
     }
 
+    /** 通过ip定位自身，需要登录 */
+    public getLocationByIp(params?: {
+        success?: (addr: {country: string; province: string; city: string}) => void;
+        fail?: (err: string) => void;
+        complete?: () => void;
+    }): Promise<{
+        addr?: {country: string; province: string; city: string};
+        error?: string;
+    }> {
+        return new Promise<{
+            addr?: {country: string; province: string; city: string};
+            error?: string;
+        }> ((resolve) => {
+            let lParams = params || {};
+            let callFail = (err: string) => {
+                console.log(err);
+                if (lParams.fail) {
+                    lParams.fail(err || '未知错误');
+                }
+                if (lParams.complete) {
+                    lParams.complete();
+                }
+                resolve({error: err || '未知错误'});
+            };
+            let appConfig = this.checkAppConfig();
+            if (typeof appConfig === 'string') {
+                callFail(appConfig as string);
+                return;
+            }
+            this.request('locate', {appid: appConfig.appid, plat: xfire.plat, sdk: xfire.getAdSdkName(), channel: appConfig.channel, version: appConfig.version}, (data) => {
+                if (data.result === 'ok') {
+                    if (lParams.success) {
+                        lParams.success(data.data);
+                    }
+                    if (lParams.complete) {
+                        lParams.complete();
+                    }
+                    resolve({addr: data.data});
+                }
+                else {
+                    callFail(data.msg);
+                }
+            });
+        });
+    }
+
     /**
      * 从服务器获取配置，无需登录
      */
@@ -500,6 +649,67 @@ export class XFireOnline{
     }
 
     /**
+     * 上传用户分数到省份榜的某个省中，省份榜每日刷新重置
+     * @param params province为省份名，可使用getLocationByIp获取省份
+     */
+    public uploadUserProvinceScore(params: {
+        province: string;
+        score: number;
+        replace?: boolean;
+        success?: (data: {type: string; score: number; newRecord: boolean; rank: number; count: number}) => void;
+        fail?: (err: string) => void;
+        complete?: () => void;
+    }): Promise<{
+        data?: {type: string; lv?: number; score: number; newRecord: boolean; rank: number; count: number};
+        error?: string;
+    }> {
+        return this.uploadScore({
+            type: 'province',
+            province: params.province,
+            score: params.score,
+            replace: params.replace,
+            success: params.success,
+            fail: params.fail,
+            complete: params.complete
+        });
+    }
+
+    /**
+     * 组队作战分数上传，应该由队长上传
+     * @param params 参数集合
+     *      teamIds 队伍成员id，至少要传入自己的id
+     *      pubData 公开的透传数据，随榜单数据原样下发，长度不要超过1024
+     *      teamHash 队伍唯一哈希，方便去重，不可含字符@#_
+     */
+    public uploadTeamLevelScore(params: {
+        lv: number;
+        score: number;
+        teamIds: number[];
+        replace?: boolean;
+        pubData?: string;
+        teamHash?: string;
+        success?: (data: {type: string; score: number; newRecord: boolean; rank: number; count: number}) => void;
+        fail?: (err: string) => void;
+        complete?: () => void;
+    }): Promise<{
+        data?: {type: string; lv?: number; score: number; newRecord: boolean; rank: number; count: number};
+        error?: string;
+    }> {
+        return this.uploadScore({
+            type: 'team',
+            teamIds: params.teamIds,
+            lv: params.lv,
+            score: params.score,
+            replace: params.replace,
+            pubData: params.pubData,
+            teamHash: params.teamHash,
+            success: params.success,
+            fail: params.fail,
+            complete: params.complete
+        });
+    }
+
+    /**
      * 上传关卡分数，永久保存
      * @param params 参数集合
      *      lv：[1, 9999]
@@ -510,6 +720,7 @@ export class XFireOnline{
             lv: number;
             score: number;
             replace?: boolean;
+            pubData?: string;
             success?: (data: {type: string; lv: number; score: number; newRecord: boolean; rank: number; count: number}) => void;
             fail?: (err: string) => void;
             complete?: () => void;
@@ -522,6 +733,7 @@ export class XFireOnline{
             lv: params.lv,
             score: params.score,
             replace: params.replace,
+            pubData: params.pubData,
             success: params.success,
             fail: params.fail,
             complete: params.complete
@@ -539,6 +751,7 @@ export class XFireOnline{
         lv: number;
         score: number;
         replace?: boolean;
+        pubData?: string;
         success?: (data: {type: string; lv: number; score: number; newRecord: boolean; rank: number; count: number}) => void;
         fail?: (err: string) => void;
         complete?: () => void;
@@ -551,6 +764,7 @@ export class XFireOnline{
             lv: params.lv,
             score: params.score,
             replace: params.replace,
+            pubData: params.pubData,
             success: params.success,
             fail: params.fail,
             complete: params.complete
@@ -568,6 +782,7 @@ export class XFireOnline{
         lv: number;
         score: number;
         replace?: boolean;
+        pubData?: string;
         success?: (data: {type: string; lv: number; score: number; newRecord: boolean; rank: number; count: number}) => void;
         fail?: (err: string) => void;
         complete?: () => void;
@@ -580,6 +795,7 @@ export class XFireOnline{
             lv: params.lv,
             score: params.score,
             replace: params.replace,
+            pubData: params.pubData,
             success: params.success,
             fail: params.fail,
             complete: params.complete
@@ -597,6 +813,7 @@ export class XFireOnline{
         lv: number;
         score: number;
         replace?: boolean;
+        pubData?: string;
         success?: (data: {type: string; lv: number; score: number; newRecord: boolean; rank: number; count: number}) => void;
         fail?: (err: string) => void;
         complete?: () => void;
@@ -609,6 +826,7 @@ export class XFireOnline{
             lv: params.lv,
             score: params.score,
             replace: params.replace,
+            pubData: params.pubData,
             success: params.success,
             fail: params.fail,
             complete: params.complete
@@ -858,11 +1076,12 @@ export class XFireOnline{
     }
 
     /**
-     * 获取全局榜单
+     * 获取一个省份的榜单
      * @param params start表从哪个排名开始取，默认1
      */
-    public getLevelRanklist(params: {
-        lv: number;
+    public getOneProvinceRanklist(params: {
+        /** 省份名称 */
+        province: string;
         start?: number;
         count?: number;
         success?: (data: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}}) => void;
@@ -870,6 +1089,78 @@ export class XFireOnline{
         complete?: () => void;
     }): Promise<{
         data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}};
+        error?: string;
+    }> {
+        return this.getRanklist({
+            type: 'province',
+            region: params.province,
+            start: params.start,
+            count: params.count,
+            success: params.success,
+            fail: params.fail,
+            complete: params.complete
+        });
+    }
+
+    /**
+     * 获取省份榜单，内容为所有省份的成绩
+     * @param params nickname为省份名称
+     */
+    public getProvincesRanklist(params: {
+        success?: (data: {ranklist: {nickname: string; rank: number; score: number}[]}) => void;
+        fail?: (err: string) => void;
+        complete?: () => void;
+    }): Promise<{
+        data?: {ranklist: {nickname: string; rank: number; score: number}[]};
+        error?: string;
+    }> {
+        return this.getRanklist({
+            type: 'provinces',
+            success: params.success,
+            fail: params.fail,
+            complete: params.complete
+        });
+    }
+
+    /**
+     * 获取队伍榜单
+     * @param params start表从哪个排名开始取，默认1
+     */
+    public getTeamLevelRanklist(params: {
+        lv: number;
+        start?: number;
+        count?: number;
+        success?: (data: {ranklist: {teamIds: number[]; teamNicknames: string[]; teamAvatars: string[]; rank: number; score: number; pubData?: string}[]}) => void;
+        fail?: (err: string) => void;
+        complete?: () => void;
+    }): Promise<{
+        data?: {ranklist: {teamIds: number[]; teamNicknames: string[]; teamAvatars: string[]; rank: number; score: number; pubData?: string}[]};
+        error?: string;
+    }> {
+        return this.getRanklist({
+            type: 'team',
+            lv: params.lv,
+            start: params.start,
+            count: params.count,
+            success: params.success as any,
+            fail: params.fail,
+            complete: params.complete
+        }) as any;
+    }
+
+    /**
+     * 获取全局榜单
+     * @param params start表从哪个排名开始取，默认1
+     */
+    public getLevelRanklist(params: {
+        lv: number;
+        start?: number;
+        count?: number;
+        success?: (data: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}}) => void;
+        fail?: (err: string) => void;
+        complete?: () => void;
+    }): Promise<{
+        data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}};
         error?: string;
     }> {
         return this.getRanklist({
@@ -888,11 +1179,11 @@ export class XFireOnline{
         last?: boolean;
         start?: number;
         count?: number;
-        success?: (data: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}}) => void;
+        success?: (data: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}}) => void;
         fail?: (err: string) => void;
         complete?: () => void;
     }): Promise<{
-        data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}};
+        data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}};
         error?: string;
     }> {
         return this.getRanklist({
@@ -911,11 +1202,11 @@ export class XFireOnline{
         last?: boolean;
         start?: number;
         count?: number;
-        success?: (data: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}}) => void;
+        success?: (data: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}}) => void;
         fail?: (err: string) => void;
         complete?: () => void;
     }): Promise<{
-        data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}};
+        data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}};
         error?: string;
     }> {
         return this.getRanklist({
@@ -934,11 +1225,11 @@ export class XFireOnline{
         last?: boolean;
         start?: number;
         count?: number;
-        success?: (data: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}}) => void;
+        success?: (data: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}}) => void;
         fail?: (err: string) => void;
         complete?: () => void;
     }): Promise<{
-        data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}};
+        data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}};
         error?: string;
     }> {
         return this.getRanklist({
@@ -1007,17 +1298,18 @@ export class XFireOnline{
     private getRanklist(params: {
         type: string;
         lv?: number;
+        region?: string;
         start?: number;
         count?: number;
-        success?: (data: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}}) => void;
+        success?: (data: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}}) => void;
         fail?: (err: string) => void;
         complete?: () => void;
     }): Promise<{
-        data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}};
+        data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}};
         error?: string;
     }> {
         return new Promise<{
-            data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number}};
+            data?: {ranklist: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}[]; self: {id: number; nickname: string; avatar: string; gender: string; rank: number; score: number; pubData?: string}};
             error?: string;
         }>((resolve) => {
             let lParams = params;
@@ -1036,7 +1328,13 @@ export class XFireOnline{
                 callFail(appConfig as string);
                 return;
             }
-            this.request('getRanklist', {type: params.type, lv: params.lv, start: params.start, count: params.count}, (data) => {
+            this.request('getRanklist', {
+                type: params.type,
+                lv: params.lv,
+                region: params.region,
+                start: params.start,
+                count: params.count
+            }, (data) => {
                 if (data.result === 'ok') {
                     if (lParams.success) {
                         lParams.success(data.data);
@@ -1102,9 +1400,13 @@ export class XFireOnline{
 
     private uploadScore(params: {
         type: string;
+        teamIds?: number[];
         replace?: boolean;
+        province?: string;
         lv?: number;
         score: number;
+        pubData?: string;
+        teamHash?: string;
         success?: (data: {type: string; lv?: number; score: number; newRecord: boolean; rank: number; count: number}) => void;
         fail?: (err: string) => void;
         complete?: () => void;
@@ -1135,7 +1437,16 @@ export class XFireOnline{
             if (params.score === 0) {
                 console.warn('上传0分将被服务器忽略');
             }
-            this.request('uploadScore', {type: params.type, lv: params.lv, score: params.score, replace: params.replace}, (data) => {
+            this.request('uploadScore', {
+                type: params.type,
+                province: params.province,
+                lv: params.lv,
+                score: params.score,
+                teamIds: params.teamIds,
+                replace: params.replace,
+                pubData: params.pubData,
+                teamHash: params.teamHash
+            }, (data) => {
                 if (data.result === 'ok') {
                     if (lParams.success) {
                         lParams.success(data.data);
@@ -1220,7 +1531,7 @@ export class XFireOnline{
         req.session = this.session; // 放在消息外 作为通信层信息
         req.method = method;
         req.data = data;
-        let strBody = xfire.encrypt(JSON.stringify(req), 'spj88' + 'frfub3' + 'ryalu');
+        let strBody = CC_DEV ? JSON.stringify(req) : xfire.encrypt(JSON.stringify(req), 'spj88' + 'frfub3' + 'ryalu');
         xfire.httpGetStringWithBody(Configs.服务端地址, strBody).then((ret) => {
             if (typeof ret.content !== 'string') {
                 let err = '通信返回数据类型不对，错误：' + ret.error + ' method:' + method;
@@ -1255,15 +1566,36 @@ export class XFireOnline{
         if (info.session != null && info.session !== '') {
             this.session = info.session;
         }
+        if (info.platSession != null && info.platSession !== '') {
+            this.platSession = info.platSession;
+        }
         this.id = (info.id == null || info.id <= 0) ? 0 : info.id;
+        if (info.platId != null) {
+            this.platId = info.platId || '';
+        }
         xfire.userid = this.id.toString();
         xfire.userSession = this.session;
         this.nickname = info.nickname || '';
         this.avatar = info.avatar || '';
         this.guest = info.guest === true;
         this.noname = info.noname === true;
+        this.gender = info.gender || '';
+        if (info.infoSign != null) {
+            this.infoSign = info.infoSign || '';
+        }
+        if (info.share != null) {
+            this.share = info.share;
+        }
+        if (info.regTime != null) {
+            this.regTime = info.regTime;
+        }
+        if (info.loginDays != null) {
+            this.loginDays = info.loginDays;
+        }
+        if (typeof info.vip === 'number')  {
+            this.vip = info.vip;
+        }
     }
-
 }
 
 let inst = new XFireOnline();

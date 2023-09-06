@@ -1,4 +1,14 @@
 /**
+ * 推特旗下 mopub聚合广告
+ *       文档：https://developers.mopub.com/publishers/android/integrate/
+ *       ✦操作：
+ *
+ * Fyber FairBid聚合广告
+ *      文档：https://developer.fyber.com/hc/en-us/articles/360013580478-Android-Ad-Formats
+ *      ✦操作
+ *          1.勾选支持平台https://developer.fyber.com/hc/en-us/articles/360010077777-Supported-Networks
+ *          2.勾选后下方会出现gradle的集成脚本
+ *
  * 小米
  *      游戏sdk接入流程：https://dev.mi.com/console/doc/detail?pId=1952
  *      单机sdk：https://dev.mi.com/console/doc/detail?pId=1280
@@ -8,6 +18,18 @@
  *      游戏有内购有广告：需要接网游SDK+广告SDK
  * oppoo
  *      提示初始化失败需注意secret是否配置
+ *
+ * facebook
+ *      可以通过topon集成，topon里facebook的应用id可以使用广告位id的前半段，如
+ *      某个facebook视频广告点的广告位id为1734182910097885_1734184286764414，这topon
+ *      里facebook的应用id可以填写为1734182910097885
+ *      ✦测试方法：国内测试可能存在填充率问题，此时可以开启测试模式
+ *          1.安装facebook
+ *          2.获取手机的aaid，如nexus5上，访问设置-》Google-》广告-》您的广告id
+ *          3.进入facebook 盈利管理工具https://business.facebook.com/pub
+ *          4.进入 整合-》测试
+ *          5.打开测试开关，可以勾选使用真实的广告
+ *          6.在下方填写aaid添加测试设备
  *
  * 爱奇艺
  *      上线他们会重新签名，所以360加固时要在加固软件的基础设置里勾选跳过签名验证。
@@ -41,7 +63,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public getAdSdkName(): string {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let name: string = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'getAdSdkName', '()Ljava/lang/String;');
@@ -56,35 +78,35 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public setKeepScreenOn(on: boolean) {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'keepScreenOn', '(Z)V', on);
     }
 
     public analyzerSendEvent(eventName: string, eventArg: string) {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'sendEvent', '(Ljava/lang/String;Ljava/lang/String;)V', eventName, eventArg == null ? '' : eventArg);
     }
 
     public analyzerStageEnter(stageId: number, userId?: string) {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'stageEnter', '(I)V', stageId);
     }
 
     public analyzerStageEnd(stageId: number, succ: boolean, score?: number, userId?: string) {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'stageEnd', '(IZI)V', stageId, succ, score);
     }
 
     public openBrowser(url: string) {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'openBrowser', '(Ljava/lang/String;)V', url);
@@ -92,21 +114,21 @@ export default class XFireAppAndroid extends XFireApp{
 
     /** 显示隐私策略弹窗 */
     public showPrivacy() {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'showPrivacy', '()V');
     }
 
     public supportExitCheck(): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'supportExitCheck', '()Z');
     }
 
     public exitCheck(onCancel: () => void, onConfirm: () => void) {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'exitCheck', '(I)V',
@@ -126,7 +148,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public supportBannerAd(): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let support: boolean = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'supportBannerAd', '()Z');
@@ -134,7 +156,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public supportBannerAdMove(): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let support: boolean = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'supportBannerAdMove', '()Z');
@@ -142,7 +164,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public supportVideoAd(): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let support: boolean = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'supportVideoAd', '()Z');
@@ -150,7 +172,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public supportInterstitialAd(): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let support: boolean = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'supportInterstitialAd', '()Z');
@@ -158,7 +180,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public supportAppBoxAd(): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let support: boolean = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'supportAppBoxAd', '()Z');
@@ -166,7 +188,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public supportFullscreenAd(): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let support: boolean = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'supportFullscreenAd', '()Z');
@@ -174,7 +196,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public supportFeedsAd(): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let support: boolean = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'supportFeedsAd', '()Z');
@@ -182,7 +204,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public supportFeedsAdMove(): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let support: boolean = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'supportFeedsAdMove', '()Z');
@@ -190,7 +212,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public supportLogin(): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let support: boolean = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'supportLogin', '()Z');
@@ -198,7 +220,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public supportPayment(): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let support: boolean = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'supportPayment', '()Z');
@@ -211,7 +233,7 @@ export default class XFireAppAndroid extends XFireApp{
         fail?: (err: LoginError) => void;
         complete?: () => void;
     }= {}): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let errMsg = 'login未实现';
@@ -225,49 +247,49 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public createBannerAd(sdkConfig: SdkCfg, cfg: AdCfg): BannerAd {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return new BannerAdAndroid(sdkConfig, cfg);
     }
 
     public createVideoAd(sdkConfig: SdkCfg, cfg: AdCfg): VideoAd {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return new VideoAdAndroid(sdkConfig, cfg);
     }
 
     public createInterstitialAd(sdkConfig: SdkCfg, cfg: AdCfg): InterstitialAd {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return new InterstitialAdAndroid(sdkConfig, cfg);
     }
 
     public createFullscreenAd(sdkConfig: SdkCfg, cfg: AdCfg): FullscreenAd {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return new FullscreenAdAndroid(sdkConfig, cfg);
     }
 
     public createAppBoxAd(sdkConfig: SdkCfg, cfg: AdCfg): AppBoxAd {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return new AppBoxAdAndroid(sdkConfig, cfg);
     }
 
     public createFeedsAd(sdkConfig: SdkCfg, cfg: AdCfg): FeedsAd {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return new FeedsAdAndroid(sdkConfig, cfg);
     }
 
     public getSystemInfoSync(): SystemInfo {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         // 品牌#$型号#$设备像素比#$屏幕宽#$屏幕高#$窗口宽#$窗口高#$语言
@@ -286,6 +308,9 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public getChannel(): string {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
         let channel: string = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'getChannel', '()Ljava/lang/String;');
         return channel;
     }
@@ -295,6 +320,9 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public setClipboardData(content: string): Promise<boolean> {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
         return new Promise<boolean> ((resolve) => {
             jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity',
                 'setClipboardData',
@@ -306,6 +334,9 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public getClipboardData(): Promise<string> {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
         return new Promise<string> ((resolve) => {
             let content: string = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'getClipboardData', '()Ljava/lang/String;');
             resolve(content);
@@ -318,6 +349,9 @@ export default class XFireAppAndroid extends XFireApp{
      * @param params 参数集合
      */
     public remoteCall(method: string, params: {[key: string]: any}): Promise<any> {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
         return new Promise<any> ((resolve) => {
             jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity',
                 'remoteCall',
@@ -338,14 +372,14 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     public getIMEI(): string {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'getProperty', '(Ljava/lang/String;)Ljava/lang/String;', 'imei');
     }
 
     public getIMSI(): string {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'getProperty', '(Ljava/lang/String;)Ljava/lang/String;', 'imsi');
@@ -353,7 +387,7 @@ export default class XFireAppAndroid extends XFireApp{
 
     /** 获取版本号 */
     public getVersionCode(): number {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return parseInt(jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'getProperty', '(Ljava/lang/String;)Ljava/lang/String;', 'versionCode'), 10);
@@ -361,7 +395,7 @@ export default class XFireAppAndroid extends XFireApp{
 
     /** 获取版本名 */
     public getVersionName(): string {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'getProperty', '(Ljava/lang/String;)Ljava/lang/String;', 'versionName');
@@ -369,7 +403,7 @@ export default class XFireAppAndroid extends XFireApp{
 
     /** 获取包名 */
     public getPackageName(): string {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'getProperty', '(Ljava/lang/String;)Ljava/lang/String;', 'packageName');
@@ -380,7 +414,7 @@ export default class XFireAppAndroid extends XFireApp{
      * @param title 输入框标题
      */
     public getUserInput(title: string): Promise<string> {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return new Promise<string> ((resolve) => {
@@ -402,7 +436,7 @@ export default class XFireAppAndroid extends XFireApp{
 
     /** 判断文件夹是否存在 */
     public isDirectoryExist(path: string): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return false;
         }
         return jsb.fileUtils.isDirectoryExist(path);
@@ -410,7 +444,7 @@ export default class XFireAppAndroid extends XFireApp{
 
     /** 判断文件是否存在 */
     public isFileExist(path: string): boolean {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return false;
         }
         return jsb.fileUtils.isFileExist(path);
@@ -418,7 +452,7 @@ export default class XFireAppAndroid extends XFireApp{
 
     /** 获取存储目录，如：/data/user/0/com.xh.sgtmp.empty/files/ */
     public getWritablePath(): string {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         return jsb.fileUtils.getWritablePath();
@@ -426,7 +460,7 @@ export default class XFireAppAndroid extends XFireApp{
 
     /** 获取外部存储目录，如：/storage/emulated/0/Android/data/com.xh.sgtmp.empty/files */
     public getExternalFilesDir(): string {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let dir: string = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity', 'getExternalFilesDir', '()Ljava/lang/String;');
@@ -435,7 +469,7 @@ export default class XFireAppAndroid extends XFireApp{
 
     /** 安装apk */
     public installApk(apkPath: string): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         if (apkPath == null || apkPath === '') {
@@ -452,7 +486,7 @@ export default class XFireAppAndroid extends XFireApp{
         fail?: (failMsg: string) => void;
         onProgress?: (prog0To1: number) => void;
     }) {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let downloader = new jsb.Downloader();
@@ -481,7 +515,7 @@ export default class XFireAppAndroid extends XFireApp{
     }
 
     protected init(config: AppConfig, createAdvertisements = true) {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         super.init(config, false);
@@ -505,14 +539,20 @@ export default class XFireAppAndroid extends XFireApp{
         );
     }
 
-    protected nativePay(orderId: string, goodsName: string, count: number, price: number, goodsId: string) {
+    protected nativePay(payPoint: string, orderId: string) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
+        let payPointCfg = this.getPayPointConfig(payPoint);
         jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity',
             'startPay',
-            '(Ljava/lang/String;Ljava/lang/String;IF)V',
+            '(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IF)V',
+            payPoint,
             orderId,
-            goodsName,
-            count,
-            price);
+            payPointCfg.id || '',
+            payPointCfg.goods || '',
+            payPointCfg.count,
+            payPointCfg.price);
     }
 
     protected nativeSetPayNotifier(notifier: {
@@ -520,27 +560,33 @@ export default class XFireAppAndroid extends XFireApp{
         cancel?: (orderInfo: OrderInfo) => void;
         fail?: (orderInfo: OrderInfo, failMsg: string) => void;
     }) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
         jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity',
             'setPayNotifier',
             '(I)V',
             XFireApp.getInstance().createJsbCallBack((params: {
                 status: string/*success fail cancel*/;
+                payPoint: string;
                 orderid: string;
-                goodsName: string;
-                count: number;
                 failMsg: string;
             }) => {
                 if (notifier == null) {
                     return;
                 }
+                let cfg = this.getPayPointConfig(params.payPoint);
+                if (!cfg) {
+                    return;
+                }
                 if (params.status === 'success' && notifier.success) {
-                    notifier.success({orderid: params.orderid, count: params.count, goodsName: params.goodsName});
+                    notifier.success({payPoint: params.payPoint, orderid: params.orderid, count: cfg.count, goodsName: cfg.goods});
                 }
                 else if (params.status === 'fail' && notifier.fail) {
-                    notifier.fail({orderid: params.orderid, count: params.count, goodsName: params.goodsName}, params.failMsg);
+                    notifier.fail({payPoint: params.payPoint, orderid: params.orderid, count: cfg.count, goodsName: cfg.goods}, params.failMsg);
                 }
                 else if (params.status === 'cancel' && notifier.cancel) {
-                    notifier.cancel({orderid: params.orderid, count: params.count, goodsName: params.goodsName});
+                    notifier.cancel({payPoint: params.payPoint, orderid: params.orderid, count: cfg.count, goodsName: cfg.goods});
                 }
             }));
     }
@@ -552,6 +598,9 @@ class BannerAdAndroid extends BannerAd{
     }
 
     public onEvent(param: {event: string; succ: boolean; msg: string}) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
         switch (param.event) {
             case 'create':
                 if (param.succ) {
@@ -567,7 +616,7 @@ class BannerAdAndroid extends BannerAd{
     }
 
     public load(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let scaleToPlat = xfire.getSystemInfoSync().screenWidth / cc.view.getVisibleSize().width;
@@ -594,7 +643,7 @@ class BannerAdAndroid extends BannerAd{
     }
 
     public moveTo(bottom: number): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let scaleToPlat = xfire.getSystemInfoSync().screenWidth / cc.view.getVisibleSize().width;
@@ -607,7 +656,7 @@ class BannerAdAndroid extends BannerAd{
     }
 
     public moveToEx(left: number, top: number, width: number, height: number): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let scaleToPlat = xfire.getSystemInfoSync().screenWidth / cc.view.getVisibleSize().width;
@@ -627,14 +676,14 @@ class BannerAdAndroid extends BannerAd{
     }
 
     public destroy(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         throw new Error('Method not implemented.');
     }
 
     protected nativeShow(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         console.log('BannerAdAndroid nativeShow');
@@ -645,7 +694,7 @@ class BannerAdAndroid extends BannerAd{
         );
     }
     protected nativeHide(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         console.log('BannerAdAndroid nativeHide');
@@ -662,6 +711,9 @@ class VideoAdAndroid extends VideoAd{
     private playCb: (end: boolean) => void = null;
 
     public onEvent(param: {event: string; succ: boolean; msg: string}) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
         switch (param.event) {
             case 'create':
                 if (param.succ) {
@@ -673,11 +725,16 @@ class VideoAdAndroid extends VideoAd{
                 break;
             case 'complete':
                 this.end = true;
+                console.log('看完广告');
                 break;
             case 'close':
                 if (this.playCb) {
                     this.playCb(this.end);
                 }
+                if (!this.end && param?.msg) {
+                    console.log(param.msg);
+                }
+                console.log('关闭广告');
                 cc.game.emit(cc.game.EVENT_SHOW);
                 break;
             default:
@@ -686,7 +743,7 @@ class VideoAdAndroid extends VideoAd{
     }
 
     public load(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         console.log('VideoAdAndroid load video' + this.config.name);
@@ -700,14 +757,14 @@ class VideoAdAndroid extends VideoAd{
     }
 
     public destroy(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         throw new Error('Method not implemented.');
     }
 
     protected nativePlay(cb: (end: boolean) => void): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         this.end = false;
@@ -723,6 +780,9 @@ class VideoAdAndroid extends VideoAd{
 
 class InterstitialAdAndroid extends InterstitialAd {
     public onEvent(param: {event: string; succ: boolean; msg: string}) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
         switch (param.event) {
             case 'create':
                 if (param.succ) {
@@ -738,7 +798,7 @@ class InterstitialAdAndroid extends InterstitialAd {
     }
 
     public load(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let info: string = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity',
@@ -751,7 +811,7 @@ class InterstitialAdAndroid extends InterstitialAd {
     }
 
     protected nativeShow(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         console.log('InterstitialAdAndroid nativeShow');
@@ -765,6 +825,9 @@ class InterstitialAdAndroid extends InterstitialAd {
 
 class FullscreenAdAndroid extends FullscreenAd {
     public onEvent(param: {event: string; succ: boolean; msg: string}) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
         switch (param.event) {
             case 'create':
                 if (param.succ) {
@@ -780,7 +843,7 @@ class FullscreenAdAndroid extends FullscreenAd {
     }
 
     public load(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let info: string = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity',
@@ -793,7 +856,7 @@ class FullscreenAdAndroid extends FullscreenAd {
     }
 
     protected nativeShow(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         console.log('FullscreenAdAndroid nativeShow');
@@ -807,6 +870,9 @@ class FullscreenAdAndroid extends FullscreenAd {
 
 class AppBoxAdAndroid extends AppBoxAd {
     public onEvent(param: {event: string; succ: boolean; msg: string}) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
         switch (param.event) {
             case 'create':
                 if (param.succ) {
@@ -821,7 +887,7 @@ class AppBoxAdAndroid extends AppBoxAd {
         }
     }
     public load(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let info: string = jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity',
@@ -834,7 +900,7 @@ class AppBoxAdAndroid extends AppBoxAd {
     }
 
     protected nativeShow(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         jsb.reflection.callStaticMethod('org/cocos2dx/javascript/AppActivity',
@@ -847,6 +913,9 @@ class AppBoxAdAndroid extends AppBoxAd {
 
 class FeedsAdAndroid extends FeedsAd {
     public onEvent(param: {event: string; succ: boolean; msg: string}) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
+            return;
+        }
         switch (param.event) {
             case 'create':
                 if (param.succ) {
@@ -862,7 +931,7 @@ class FeedsAdAndroid extends FeedsAd {
     }
 
     public load(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let scaleToPlat = xfire.getSystemInfoSync().screenWidth / cc.view.getVisibleSize().width;
@@ -888,7 +957,7 @@ class FeedsAdAndroid extends FeedsAd {
     }
 
     public moveTo(left: number, top: number, width: number, height: number): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME || xfire.plat !== xfire.PLAT_ANDROID) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         let info = xfire.getSystemInfoSync();
@@ -905,7 +974,7 @@ class FeedsAdAndroid extends FeedsAd {
     }
 
     protected nativeShow(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         console.log('FeedsAdAndroid nativeShow');
@@ -917,7 +986,7 @@ class FeedsAdAndroid extends FeedsAd {
     }
 
     protected nativeHide(): void {
-        if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        if (xfire.plat !== xfire.PLAT_ANDROID) {
             return;
         }
         console.log('FeedsAdAndroid nativeHide');
