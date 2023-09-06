@@ -11,6 +11,8 @@
     ✦查看进度，progress属性，没有任务时，progress属性将返回0
 *******************************************************************************/
 
+import xfire from "../XFire/xfire";
+
 export abstract class Task {
     public end = false;
     /** 任务进度0-1 */
@@ -36,10 +38,35 @@ export abstract class Task {
 /** 任务池 */
 export default class XTaskPool {
     private totalWeight = 0;
-    private tasks: {weight: number; task: Task; block: boolean}[] = [];
+    private tasks: { weight: number; task: Task; block: boolean }[] = [];
     private completed = false;
+    /** 上次计算的进度，防止倒退 */
+    private lastRet = 0;
+    /** 启动时间 */
+    private startTimestamp = 0;
+    /** 假进度，可以减少用户等待感 */
+    private fakeTotalPercents = 0;
+    private fakeMaxTime = 15;
 
-    /** 返回总进度 */
+    public constructor(params?: {
+        /** 假进度总占比0 - 0.99，默认0 */
+        fakeTotalPercents?: number;
+        /** 假进度最大时间，默认15秒 */
+        fakeMaxTime?: number;
+    }) {
+        if (params) {
+            if (typeof params.fakeTotalPercents === 'number' && params.fakeTotalPercents > 0) this.fakeTotalPercents = Math.min(0.99, params.fakeTotalPercents);
+            if (typeof params.fakeMaxTime === 'number' && params.fakeMaxTime > 0) this.fakeMaxTime = params.fakeMaxTime;
+        }
+
+    }
+
+    /**
+     * 结合假进度返回总进度
+     * 算法如下：
+     * fakeTotalPercents为0表没启用假进度，此时直接返回真进度
+     * fakeTotalPercents非0则：
+     */
     public get progress() {
         if (this.tasks.length === 0) {
             return 0;
@@ -58,6 +85,20 @@ export default class XTaskPool {
         ret = ret / this.totalWeight;
         ret = Math.min(1, ret);
         this.completed = ret === 1;
+        if (this.completed || this.fakeTotalPercents <= 0) {
+            ret = Math.max(this.lastRet, ret);
+            this.lastRet = ret;
+            return ret;
+        }
+        // 结合加进度
+        let time = Math.max(0, xfire.currentTimeMillis - this.startTimestamp) / 1000;
+        let fakeProgress = ret;
+        fakeProgress += (1 - ret) * Math.min(1, time / (this.fakeMaxTime));
+        fakeProgress *= this.fakeTotalPercents;
+
+        ret = fakeProgress + ret * (1 - this.fakeTotalPercents);
+        ret = Math.max(this.lastRet, ret);
+        this.lastRet = ret;
         return ret;
     }
 
@@ -71,13 +112,14 @@ export default class XTaskPool {
         if (CC_DEV && weight < 0) {
             console.error('权重不能为负数');
         }
-        this.tasks.push({weight, task, block});
+        this.tasks.push({ weight, task, block });
         this.totalWeight += weight;
     }
 
     public start(): Promise<void> {
-        return new Promise<void> ((resolve) => {
+        return new Promise<void>((resolve) => {
             this.completed = false;
+            this.startTimestamp = xfire.currentTimeMillis;
             (async () => {
                 for (let task of this.tasks) {
                     task.task.progress = 0;
@@ -95,7 +137,7 @@ export default class XTaskPool {
                         resolve();
                         break;
                     }
-                }while (!this.completed);
+                } while (!this.completed);
             })();
         });
     }

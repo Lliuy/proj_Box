@@ -13,7 +13,11 @@ let Configs = {
             /**  夜间模式 */
             2: '#363535'
         }
+    },
+    shareConfig: {
+        title: '',
 
-    }
+    },
+    shareUrl: '',
 };
 export default Configs;

@@ -1,3 +1,15 @@
+export const ResourceData: {
+    /** 预加载预制体 */
+    prefabs: { [key: string]: cc.Prefab };
+    resource: cc.AssetManager.Bundle;
+    atlasAvatar: cc.SpriteAtlas;
+    remote: cc.AssetManager.Bundle; //远程bundle
+} = {
+    prefabs: {},
+    resource: null,
+    atlasAvatar: null,
+    remote: null,
+};
 
 export enum MaticMould {
     白天模式 = 1,

@@ -1,6 +1,7 @@
 {
-  "last-module-event-record-time": 1630075043590,
+  "last-module-event-record-time": 1693986328877,
   "migrate-history": [
     "cloud-function"
-  ]
+  ],
+  "start-scene": "2ecdd178-f803-45ef-9338-08e3f6265e78"
 }

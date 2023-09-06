@@ -38,22 +38,24 @@
     }
 *******************************************************************************/
 
+import xfire from "../XFire/xfire";
+
 const AudioDoc = '__xfire_audio_doc'; // 自动存档名
 
-enum RealState{
+enum RealState {
     Playing,
     Paused,
     Stopped
 }
 
-export default class XAudio{
+export default class XAudio {
     public static autoSave = true;
     // 音效播放的间隔限制，单位：秒
     public static soundInterval = 0.05;
     private static soundState: boolean = null;
     private static musicState: boolean = null;
     private static vibrateState: boolean = null;
-    private static audioClips: {[key: string]: cc.AudioClip} = {};
+    private static audioClips: { [key: string]: cc.AudioClip } = {};
     // 待播放的音乐，用于解决调用了playMusic但音乐还未加载的情况
     private static musicToPlay: string = null;
     // 正在播放中的音乐 不受音乐、音效开关影响
@@ -64,7 +66,7 @@ export default class XAudio{
     private static realState = RealState.Stopped;
 
     // 某个音效最近一次播放时间，用于同时刻音效并发控制
-    private static justPlayedSounds: {[key: string]: number} = {};
+    private static justPlayedSounds: { [key: string]: number } = {};
 
     /**
      * 音乐开关
@@ -342,7 +344,7 @@ export default class XAudio{
      */
     private static saveStates() {
         if (XAudio.autoSave) {
-            let doc = {s: XAudio.soundOn, m: XAudio.musicOn, v: XAudio.vibrateOn};
+            let doc = { s: XAudio.soundOn, m: XAudio.musicOn, v: XAudio.vibrateOn };
             cc.sys.localStorage.setItem(AudioDoc, JSON.stringify(doc));
         }
     }

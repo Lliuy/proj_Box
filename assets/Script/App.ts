@@ -29,22 +29,7 @@ export default class App extends cc.Component {
     }
 
     public onLoad() {
-        xfire.onShow(async () => {
-            // 不锁屏
-            xfire.setKeepScreenOn(true);
-            await Archive.getInstance().load();
-        });
 
-        // 入后台存档
-        xfire.onHide(() => {
-            console.log('入后台存档');
-            Archive.getInstance().save();
-        });
-
-        // 显示分享菜单
-        if (xfire.supportShare()) {
-            xfire.showShareMenu();
-        }
     }
 
     public start() {
@@ -52,7 +37,7 @@ export default class App extends cc.Component {
         this.ChangeAppColor();
     }
 
-    public update() {}
+    public update() { }
 
     /**  进入封面 */
     public enterLayerCover() {
