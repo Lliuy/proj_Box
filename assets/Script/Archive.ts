@@ -10,7 +10,6 @@
 *******************************************************************************/
 
 import GameData, { GameDateType } from './GameData';
-import xfire from './XFire/xfire';
 import XArchive from './XModule/XArchive';
 
 export default class Archive extends XArchive {
