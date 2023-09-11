@@ -11,6 +11,8 @@
     ✦查看进度，progress属性，没有任务时，progress属性将返回0
 *******************************************************************************/
 
+import xfire from "../XFire/xfire";
+
 export abstract class Task {
     public end = false;
     /** 任务进度0-1 */

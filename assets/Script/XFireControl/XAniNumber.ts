@@ -117,10 +117,10 @@ export default class XAniNumber extends cc.Label {
         override: true,
         visible: false
     })
-    public get string(): string {
+    public get str(): string {
         return this.text;
     }
-    public set string(value: string) {
+    public set str(value: string) {
         let oldValue = this.text;
         this.text = '' + value;
         if (this.string !== oldValue) {

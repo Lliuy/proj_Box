@@ -6,6 +6,8 @@
     方案筛选
 *******************************************************************************/
 
+import xfire from "../XFire/xfire";
+
 const SaveDoc = '__xfire_solution_doc';
 
 export class XSolution {

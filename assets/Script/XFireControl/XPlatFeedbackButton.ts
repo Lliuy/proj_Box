@@ -6,6 +6,7 @@
     平台反馈按钮
 *******************************************************************************/
 
+import xfire from '../XFire/xfire';
 import { XFeedbackButton } from '../XFire/xfire_base';
 import XAd from './XAd';
 

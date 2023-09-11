@@ -11,6 +11,7 @@
         随后如果B关闭，那么A中XBanner会重新显示
 *************************************************************************/
 
+import xfire from '../XFire/xfire';
 import XAd from './XAd';
 import XRectangle from './XRectangle';
 

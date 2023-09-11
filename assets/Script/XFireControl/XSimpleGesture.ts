@@ -34,6 +34,8 @@
     })();
 *************************************************************************/
 
+import xfire from "../XFire/xfire";
+
 const {ccclass, executeInEditMode, menu, property} = cc._decorator;
 
 export enum Gesture {

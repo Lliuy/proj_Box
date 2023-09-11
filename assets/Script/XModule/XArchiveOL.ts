@@ -18,6 +18,9 @@
 范例：
 *******************************************************************************/
 
+import xfire from "../XFire/xfire";
+import xfireol from "../XFire/xfireol";
+
 /** 本地存档名 */
 const SaveDoc = '__xfire_save_doc';
 /** 存档警告长度 */

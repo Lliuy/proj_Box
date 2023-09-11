@@ -6,6 +6,8 @@
     显示远程图片
 *******************************************************************************/
 
+import xfire from "../XFire/xfire";
+
 const {ccclass, executeInEditMode, menu, property, requireComponent} = cc._decorator;
 
 @ccclass

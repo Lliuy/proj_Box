@@ -3,6 +3,8 @@
  * 引擎能力扩展
  */
 
+import xfire from "../XFire/xfire";
+
  // tslint:disable
 let XEngineExt = {
     

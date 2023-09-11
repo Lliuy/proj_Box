@@ -4,10 +4,8 @@ import XFireAppByteDance from './xfire_bytedance';
 import XFireConfigs from './xfire_config';
 import XFireAppKuaiShou from './xfire_kuaishou';
 import XFireAppOppo from './xfire_oppo';
-import XFireAppQQ from './xfire_qq';
 import XFireAppVivo from './xfire_vivo';
 import XFireAppWechat from './xfire_wechat';
-import XFireAppHuawei from './xfire_huawei';
 import XFireAppDB from './xfire_db';
 //import XFireAppBaidu from './xfire_baidu';
 //import XFireAppJKW from './xfire_jkw';
@@ -33,9 +31,9 @@ if (cc.sys.platform === cc.sys.WECHAT_GAME) {
     if (ksapi != null) {
         inst = new XFireAppKuaiShou();
     }
-    else if (qqapi != null) {
-        inst = new XFireAppQQ();
-    }
+    // else if (qqapi != null) {
+    //     inst = new XFireAppQQ();
+    // }
     // else if (qhapi != null) {
     //     inst = new XFireAppQihu();
     // }
@@ -78,9 +76,9 @@ else if (!(cc.sys.platform === cc.sys.WECHAT_GAME) && cc.sys.platform === cc.sys
 else if (!(cc.sys.platform === cc.sys.WECHAT_GAME) && cc.sys.platform === cc.sys.VIVO_GAME) {
     inst = new XFireAppVivo();
 }
-else if (!(cc.sys.platform === cc.sys.WECHAT_GAME) && cc.sys.platform === cc.sys.HUAWEI_GAME) {
-    inst = new XFireAppHuawei();
-}
+// else if (!(cc.sys.platform === cc.sys.WECHAT_GAME) && cc.sys.platform === cc.sys.HUAWEI_GAME) {
+//     inst = new XFireAppHuawei();
+// }
 // else if (!(cc.sys.platform === cc.sys.WECHAT_GAME) && cc.sys.platform === ccapi.sys.XIAOMI_GAME) {
 //     inst = new XFireAppXiaomi();
 // }

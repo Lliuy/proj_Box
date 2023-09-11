@@ -38,6 +38,8 @@
     }
 *******************************************************************************/
 
+import xfire from "../XFire/xfire";
+
 const AudioDoc = '__xfire_audio_doc'; // 自动存档名
 
 enum RealState{

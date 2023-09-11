@@ -10,6 +10,8 @@
     ✦当前为某个平台或sdk
 *******************************************************************************/
 
+import xfire from "../XFire/xfire";
+
 const { ccclass, menu, property } = cc._decorator;
 
 @ccclass

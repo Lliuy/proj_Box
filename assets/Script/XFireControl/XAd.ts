@@ -6,6 +6,8 @@
     广告组件管理
 *******************************************************************************/
 
+import xfire from "../XFire/xfire";
+
 const { ccclass, property, executeInEditMode, menu } = cc._decorator;
 
 @ccclass

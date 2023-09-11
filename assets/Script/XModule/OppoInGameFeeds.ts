@@ -10,6 +10,7 @@
     显隐控制结点不可以指定组件自身所在结点，因为如果操作自身结点active会从显隐队列中移除
 *******************************************************************************/
 
+import xfire from '../XFire/xfire';
 import XFireAppOppo from '../XFire/xfire_oppo';
 import XAd from '../XFireControl/XAd';
 

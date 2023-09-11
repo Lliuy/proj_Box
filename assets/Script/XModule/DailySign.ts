@@ -48,6 +48,7 @@
 
 *******************************************************************************/
 
+import xfire from '../XFire/xfire';
 import { TimeZone } from '../XFire/xfire_base';
 
 // 签到数据存档版本
